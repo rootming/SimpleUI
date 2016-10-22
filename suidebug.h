@@ -2,6 +2,8 @@
 #define SUIDEBUG_H
 #include <cstdio>
 
+namespace sui {
+
 #define BRED				"\E[41m"
 #define BGREEN				"\E[42m"
 #define BYELLOW				"\E[43m"
@@ -34,5 +36,7 @@ class SUIDebug
 public:
     SUIDebug();
 };
+
+}
 
 #endif // SUIDEBUG_H

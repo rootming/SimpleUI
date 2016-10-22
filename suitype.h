@@ -2,11 +2,24 @@
 #define BASETYPE_H
 #include <inttypes.h>
 #include <cmath>
+#include <cstddef>
+#include <string.h>
+#include "suiconfig.h"
+
+namespace sui {
+
+
 
 typedef enum { DEPTH1, DEPTH8, DEPTH16, DEPTH24 } SUIDEPTH;
 
 //#define GETMAX(a, b) (a) >= (b) ? (a) : (b)
 //#define GETMIN(a, b) (a) <= (b) ? (a) : (b)
+#ifdef SUI_BIG_ENDIAN
+typedef enum { ALPHA_SEEK = 0, RED_SEEK = 24, GREEN_SEEK = 16, BLUE_SEEK = 8  } COLOR_SEEK;
+#else
+typedef enum { ALPHA_SEEK = 24, RED_SEEK = 0, GREEN_SEEK = 8, BLUE_SEEK = 16 } COLOR_SEEK;
+#endif
+
 
 template<typename T>
 T& getMax(T &a, T &b)
@@ -68,24 +81,17 @@ struct SUIData: public SUIRect
 
     SUIData()
     {
-//        postx = 0;
-//        posty = 0;
         buffer = nullptr;
     }
 
-//    int getWidth(void) const { return width; }
-//    int getHeight(void) const { return height; }
-//    int getPostx(void) const { return postx; }
-//    int getPosty(void) const { return posty; }
-//    void setWidth(const int32_t w) { width = w; }
-//    void setHeight(const int32_t h) { height = h; }
-//    void setPostx(const int32_t x){ postx = x; }
-//    void setPosty(const int32_t y){ posty = y; }
-//    int32_t postx, posty;
+    SUIData(const SUIData &orig): SUIRect(orig)
+    {
+        memcpy(buffer, orig.buffer, bytes());
+    }
 
     SUIDEPTH depth;
-    int32_t *buffer;	//缓冲图层指针
-    int32_t bytes(void) const { return w * h * sizeof(int32_t); }
+    uint8_t *buffer;	//缓冲图层指针
+    size_t bytes(void) const { return w * h * sizeof(uint8_t) * 3; }
 
 };
 
@@ -100,25 +106,40 @@ struct SUIColor
     SUIColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
     {
         pixel = 0;
-        pixel = r << 24 | g << 16 | b << 8 | a;
+        pixel = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
     }
+
+    SUIColor(uint32_t color)
+    {
+        pixel = color;
+    }
+
+    SUIColor(uint16_t color)
+    {
+        pixel = color;
+    }
+
+    SUIColor(uint8_t color)
+    {
+        pixel = color;
+    }
+
+    void setColorMode(SUIDEPTH mode) { depth = mode; }
     void setColor(const int32_t color){ pixel = color; }
-    void setRed(const uint8_t value) { pixel |= value << 24; }
-    void setGreen(const uint8_t value) { pixel |= value << 16; }
-    void setBlue(const uint8_t value) { pixel |= value << 8; }
-    void setAlpha(const uint8_t value) { pixel |= value; }
+    void setRed(const uint8_t value) { pixel |= value << RED_SEEK; }
+    void setGreen(const uint8_t value) { pixel |= value << GREEN_SEEK; }
+    void setBlue(const uint8_t value) { pixel |= value << BLUE_SEEK; }
+    void setAlpha(const uint8_t value) { pixel |= value << ALPHA_SEEK; }
+
     int32_t getColor(void) const { return pixel; }
-    uint8_t getRed(void) const { return pixel >> 24 & 0xFF; }
-    uint8_t getGreen(void) const { return pixel >> 16 & 0xFF; }
-    uint8_t getBlue(void) const { return pixel >> 8 & 0xFF; }
+    uint8_t getRed(void) const { return pixel >> RED_SEEK & 0xFF; }
+    uint8_t getGreen(void) const { return pixel >> GREEN_SEEK & 0xFF; }
+    uint8_t getBlue(void) const { return pixel >> BLUE_SEEK & 0xFF; }
     uint8_t getAlpha(void) const { return pixel & 0xFF; }
 
-    int32_t pixel;
-//    SUIColor() :r(0), g(0), b(0), a(0){}
-//    uint8_t r;
-//    uint8_t g;
-//    uint8_t b;
-//    uint8_t a;
+    uint32_t pixel;
+    SUIDEPTH depth;
+
 } ;
 
 static inline SUIColor operator+ (SUIColor &front, SUIColor &back)
@@ -134,9 +155,9 @@ static inline SUIColor operator+ (SUIColor &front, SUIColor &back)
         tmp.setGreen(present_back * back.getGreen() + present_front * front.getGreen());
         tmp.setBlue(present_back * back.getBlue() + present_front * front.getBlue());
     }
-//    tmp.pixel = ((color1.pixel >> 24 & 0xFF) + (color2.pixel >> 24 & 0xFF)) << 24 |
-//           ((color1.pixel >> 16 & 0xFF) + (color2.pixel >> 16 & 0xFF)) << 16 |
-//           ((color1.pixel >> 8 & 0xFF) + (color2.pixel >> 8 & 0xFF)) << 8 |
+//    tmp.pixel = ((color1.pixel >> RED_SEEK & 0xFF) + (color2.pixel >> RED_SEEK & 0xFF)) << RED_SEEK |
+//           ((color1.pixel >> GREEN_SEEK & 0xFF) + (color2.pixel >> GREEN_SEEK & 0xFF)) << GREEN_SEEK |
+//           ((color1.pixel >> BLUE_SEEK & 0xFF) + (color2.pixel >> BLUE_SEEK & 0xFF)) << BLUE_SEEK |
 //           ((color1.pixel & 0xFF) + (color2.pixel & 0xFF));
     return tmp;
 }
@@ -144,19 +165,29 @@ static inline SUIColor operator+ (SUIColor &front, SUIColor &back)
 static inline SUIColor operator- (SUIColor &color1, SUIColor &color2)
 {
     SUIColor tmp;
-    tmp.pixel = ((color1.pixel >> 24 & 0xFF) - (color2.pixel >> 24 & 0xFF)) << 24 |
-           ((color1.pixel >> 16 & 0xFF) - (color2.pixel >> 16 & 0xFF)) << 16 |
-           ((color1.pixel >> 8 & 0xFF) - (color2.pixel >> 8 & 0xFF)) << 8;
+    tmp.pixel = ((color1.pixel >> RED_SEEK & 0xFF) - (color2.pixel >> RED_SEEK & 0xFF)) << RED_SEEK |
+           ((color1.pixel >> GREEN_SEEK & 0xFF) - (color2.pixel >> GREEN_SEEK & 0xFF)) << GREEN_SEEK |
+           ((color1.pixel >> BLUE_SEEK & 0xFF) - (color2.pixel >> BLUE_SEEK & 0xFF)) << BLUE_SEEK;
            //((color1.pixel & 0xFF) - (color2.pixel & 0xFF));
     return tmp;
 }
 
-static inline SUIColor operator+ (SUIColor &color1, uint8_t value)
+static inline SUIColor operator+ (SUIColor &color, uint8_t value)
 {
     SUIColor tmp;
-    tmp.pixel = ((color1.pixel >> 24 & 0xFF) + value) << 24 |
-           ((color1.pixel >> 16 & 0xFF) + value) << 16 |
-           ((color1.pixel >> 8 & 0xFF) + value) << 8;// |
+    tmp.pixel = ((color.pixel >> RED_SEEK & 0xFF) + value) << RED_SEEK |
+           ((color.pixel >> GREEN_SEEK & 0xFF) + value) << GREEN_SEEK |
+           ((color.pixel >> BLUE_SEEK & 0xFF) + value) << BLUE_SEEK;// |
+           //((color1.pixel & 0xFF) + value);
+    return tmp;
+}
+
+static inline SUIColor operator+ (uint8_t value, SUIColor &color)
+{
+    SUIColor tmp;
+    tmp.pixel = ((color.pixel >> RED_SEEK & 0xFF) + value) << RED_SEEK |
+           ((color.pixel >> GREEN_SEEK & 0xFF) + value) << GREEN_SEEK |
+           ((color.pixel >> BLUE_SEEK & 0xFF) + value) << BLUE_SEEK;// |
            //((color1.pixel & 0xFF) + value);
     return tmp;
 }
@@ -164,21 +195,20 @@ static inline SUIColor operator+ (SUIColor &color1, uint8_t value)
 static inline SUIColor operator- (SUIColor &color1, uint8_t value)
 {
     SUIColor tmp;
-    tmp.pixel = ((color1.pixel >> 24 & 0xFF) - value) << 24 |
-           ((color1.pixel >> 16 & 0xFF) - value) << 16 |
-           ((color1.pixel >> 8 & 0xFF) - value) << 8;
+    tmp.pixel = ((color1.pixel >> RED_SEEK & 0xFF) - value) << RED_SEEK |
+           ((color1.pixel >> GREEN_SEEK & 0xFF) - value) << GREEN_SEEK |
+           ((color1.pixel >> BLUE_SEEK & 0xFF) - value) << BLUE_SEEK;
            //((color1.pixel & 0xFF) - value);
     return tmp;
 }
-
-
-
-
 
 struct SUIPixel:public SUIPost, SUIColor
 {
     SUIPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
         :SUIPost(x, y), SUIColor(r, g, b, a) {}
 };
+
+}
+
 
 #endif // BASETYPE_H

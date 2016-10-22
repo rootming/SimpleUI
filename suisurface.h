@@ -2,19 +2,22 @@
 #define SUISURFACE_H
 #include <cstring>
 #include "suiobject.h"
-#include "basetype.h"
+#include "suitype.h"
+
+namespace sui {
 
 class SUISurface: public SUIObject
 {
 public:
     SUISurface(SUISurface *parent = nullptr);
+    SUISurface(const int64_t w, const int64_t h, SUISurface *parent = nullptr);
     virtual void resize(const int32_t w, const int32_t h)
     {
         data.setWidth(w);
         data.setHeight(h);
         if(data.buffer != nullptr)
             delete []data.buffer;
-        data.buffer = new int32_t[data.bytes() / sizeof(int32_t)];
+        data.buffer = new uint8_t[data.bytes() / sizeof(uint8_t)];
         memset(data.buffer, 0, data.bytes());
     }
 
@@ -23,9 +26,17 @@ public:
 
     }
 
+    const SUIData& getData() const { return data; }
+
 protected:
     SUIData data;
 
+private:
+    int64_t x, y;
+    void init();
+
 };
+
+}
 
 #endif // SUISURFACE_H
