@@ -60,8 +60,8 @@ struct SUIRect
     {
         this->x = getMin(pos1.x, pos2.x);
         this->y = getMin(pos1.y, pos2.y);
-        this->w = std::abs(pos1.x - pos2.x);
-        this->h = std::abs(pos1.y - pos2.y);
+        this->w = std::abs(static_cast<long double>(pos1.x - pos2.x));
+        this->h = std::abs(static_cast<long double>(pos1.y - pos2.y));
     }
 
     int32_t getWidth(void) const { return w; }
