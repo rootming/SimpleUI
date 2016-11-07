@@ -11,7 +11,7 @@ SUIImage::SUIImage(SUISurface &surface)
 
 }
 
-void SUIImage::save(const char *name)
+void SUIImage::save(const char *name) const
 {
     ofstream file(name, ios::binary | ios::trunc | ios::out);
     file << "P6\n" << data.getWidth() << " " << data.getHeight() << "\n255\n";

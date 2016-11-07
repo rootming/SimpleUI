@@ -12,7 +12,7 @@ class SUIImage
 {
 public:
     SUIImage(SUISurface &surface);
-    void save(const char *name);
+    void save(const char *name) const;
 
 private:
     SUIData data;

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <string.h>
+#include <algorithm>
 #include "suiconfig.h"
 
 namespace sui {
@@ -22,16 +23,31 @@ typedef enum { ALPHA_SEEK = 24, RED_SEEK = 0, GREEN_SEEK = 8, BLUE_SEEK = 16 } C
 
 
 template<typename T>
-T& getMax(T &a, T &b)
+inline T& getMax(T &a, T &b)
 {
     return a >= b ? a : b;
 }
 
 template<typename T>
-T& getMin(T &a, T &b)
+inline T& getMin(T &a, T &b)
 {
     return a <= b ? a : b;
 }
+
+//template<typename T>
+//inline void swap(T &a, T &b)
+//{
+//    T tmp = a;
+//    b = a;
+//    a = b;
+//}
+
+//template<int T>
+//inline void swap(int &a, int &b)
+//{
+//    std::swap(a, b);
+//}
+
 
 struct SUIPost
 {

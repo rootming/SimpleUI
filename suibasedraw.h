@@ -57,13 +57,63 @@ static inline void drawPixel(SUISurface &surface, const SUIPixel pixel)
 
 /* 画线函数 */
 static inline void drawLine(SUISurface &surface, int64_t x1, int64_t y1, int64_t x2, int64_t y2,
-        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0){}
+        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
+{
+    int64_t start_x, end_x;
+    int64_t start_y, end_y;
+    SUIColor pixel(r, g, b, a);
+    int32_t tmp = pixel.getColor();
+
+
+    start_x = getMin(x1, x2);
+    start_y = getMin(y1, y2);
+
+    end_x = getMax(x1, x2);
+    end_y = getMax(y1, y2);
+
+
+
+    if(start_y == end_y) {
+        size_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
+        size_t seek_end = (end_x + surface.getData().getWidth() * start_y) * 3;
+        while(seek_start <= seek_end) {
+            memcpy(surface.getData().buffer + seek_start, &tmp, 3);
+            seek_start += 3;
+        }
+    }
+
+    else if(start_x == end_x) {
+        size_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
+        size_t seek_end = (start_x + surface.getData().getWidth() * end_y) * 3;
+        while(seek_start <= seek_end) {
+            memcpy(surface.getData().buffer + seek_start, &tmp, 3);
+            seek_start += surface.getData().getWidth() * 3;
+        }
+    }
+
+    else {
+
+    }
+
+
+}
+
 static inline void drawLine(SUISurface &surface, SUIPost &post1, SUIPost &post2,
-        SUIColor &color){}
+        SUIColor &color)
+{
+    drawLine(surface, post1.x, post1.y, post2.x, post2.y,
+             color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+}
 
 /* 画矩形函数 */
 static inline void drawRect(SUISurface &surface,int64_t x, int64_t y,int64_t w, int64_t h,
-        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0){}
+        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
+{
+    drawLine(surface, x, y, x + w, y, r, g, b, a);
+    drawLine(surface, x, y, x, y + h, r, g, b, a);
+    drawLine(surface, x, y + h, x + w, y + h, r, g, b, a);
+    drawLine(surface, x + w, y, x + w, y + h, r, g, b, a);
+}
 
 static inline void drawRectFill(SUISurface &surface, int64_t x,int64_t y,int64_t w,
         int32_t h, uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0){}
