@@ -12,6 +12,10 @@ namespace sui {
 
 
 typedef enum { DEPTH1, DEPTH8, DEPTH16, DEPTH24 } SUIDEPTH;
+typedef int64_t pos_t;
+typedef int32_t color24_t;
+
+
 
 //#define GETMAX(a, b) (a) >= (b) ? (a) : (b)
 //#define GETMIN(a, b) (a) <= (b) ? (a) : (b)
@@ -51,20 +55,20 @@ inline T& getMin(T &a, T &b)
 
 struct SUIPost
 {
-    SUIPost(int32_t x, int32_t y)
+    SUIPost(pos_t x, pos_t y)
     {
         this->x = x;
         this->y = y;
     }
 
-    int32_t x;
-    int32_t y;
-    //int32_t seek;
+    pos_t x;
+    pos_t y;
+    //pos_t seek;
 };
 
 struct SUIRect
 {
-    SUIRect(int32_t x = 0, int32_t y = 0, int32_t w = 0, int32_t h = 0)
+    SUIRect(pos_t x = 0, pos_t y = 0, pos_t w = 0, pos_t h = 0)
     {
         this->x = x;
         this->y = y;
@@ -80,16 +84,24 @@ struct SUIRect
         this->h = std::abs(static_cast<long double>(pos1.y - pos2.y));
     }
 
-    int32_t getWidth(void) const { return w; }
-    int32_t getHeight(void) const { return h; }
+    pos_t getX(void) const { return x; }
+    pos_t getY(void) const { return y; }
 
-    void setWidth(const int32_t width) { w = width; }
-    void setHeight(const int32_t height) { h = height; }
+    pos_t getWidth(void) const { return w; }
+    pos_t getHeight(void) const { return h; }
 
-    int32_t x;
-    int32_t y;
-    int32_t w;
-    int32_t h;
+    void setWidth(const pos_t width) { w = width; }
+    void setHeight(const pos_t height) { h = height; }
+
+    void setX(const pos_t post_x) { x = post_x; }
+    void setY(const pos_t post_y) { y = post_y; }
+
+
+
+    pos_t x;
+    pos_t y;
+    pos_t w;
+    pos_t h;
 };
 
 struct SUIData: public SUIRect
@@ -125,7 +137,7 @@ struct SUIColor
         pixel = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
     }
 
-    SUIColor(uint32_t color)
+    SUIColor(color24_t color)
     {
         pixel = color;
     }
@@ -141,19 +153,19 @@ struct SUIColor
     }
 
     void setColorMode(SUIDEPTH mode) { depth = mode; }
-    void setColor(const int32_t color){ pixel = color; }
+    void setColor(const color24_t color){ pixel = color; }
     void setRed(const uint8_t value) { pixel |= value << RED_SEEK; }
     void setGreen(const uint8_t value) { pixel |= value << GREEN_SEEK; }
     void setBlue(const uint8_t value) { pixel |= value << BLUE_SEEK; }
     void setAlpha(const uint8_t value) { pixel |= value << ALPHA_SEEK; }
 
-    int32_t getColor(void) const { return pixel; }
+    color24_t getColor(void) const { return pixel; }
     uint8_t getRed(void) const { return pixel >> RED_SEEK & 0xFF; }
     uint8_t getGreen(void) const { return pixel >> GREEN_SEEK & 0xFF; }
     uint8_t getBlue(void) const { return pixel >> BLUE_SEEK & 0xFF; }
     uint8_t getAlpha(void) const { return pixel & 0xFF; }
 
-    uint32_t pixel;
+    color24_t pixel;
     SUIDEPTH depth;
 
 } ;
@@ -220,7 +232,7 @@ static inline SUIColor operator- (SUIColor &color1, uint8_t value)
 
 struct SUIPixel:public SUIPost, SUIColor
 {
-    SUIPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
+    SUIPixel(pos_t x, pos_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
         :SUIPost(x, y), SUIColor(r, g, b, a) {}
 };
 
