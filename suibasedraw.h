@@ -3,6 +3,7 @@
 #include <iostream>
 #include "suisurface.h"
 #include "suitype.h"
+#include "font.h"
 
 using namespace sui;
 
@@ -165,16 +166,79 @@ static inline void drawCircleFill(SUISurface &surface, const pos_t x, const pos_
 static inline void drawStr(SUISurface &surface, const std::string &str, const pos_t x, const pos_t y, const SUIColor &color)
 {
 
+#ifdef DEBUG
+    SUIDEBUG_INFO("%s\n", str.c_str());
+#endif
+    pos_t ox, oy;
+    size_t seek;
+    const size_t len = str.length();
+    const pos_t width = 8;                  //define font width
+    ox = x;
+    oy = y;
+
+    const char *tmp = str.c_str();
+    const uint8_t red = color.getRed();
+    const uint8_t green = color.getGreen();
+    const uint8_t blue = color.getBlue();
+    const uint8_t alpha = color.getAlpha();
+
+    for(size_t c = 0; c < len; c++){
+        seek = tmp[c] * 10;
+        if(tmp[c] == '\n'){
+            ox = x;
+            oy += 10;
+            continue;
+        }
+        for(uint32_t l = 0; l < 10; l++){
+#ifdef SUI_BIG_ENDIAN
+
+#else
+            for(uint32_t i = 0; i < 8; i++){
+                if((font6x8_bits[seek] >> i) & 0x1){
+                    drawPixel(surface, ox - i, oy + l, red, green, blue, alpha);
+                    //cout<<"*";
+                }
+//                else{
+//                     cout<<" ";
+//                }
+                //cout<<((font_bits[seek] << i) & 0x1);
+                //(font_bits[seek] >> i & 0x1) ? cout <<"1" : cout <<"0";
+            }
+#endif
+            //cout<<font_bits[seek]<<":"<<seek<<endl;
+            //cout<<'\n';
+           // cout<<font_bits[seek]<<endl;
+            seek++;
+        }
+
+        ox += width;
+    }
 }
 
-static inline void drawStr(SUISurface &surface, const std::string &str, const SUIPost &post, const SUIColor &color){}
+static inline void drawStr(SUISurface &surface, const std::string &str, const SUIPost &post, const SUIColor &color)
+{
+    drawStr(surface, str, post.x, post.y, color);
+}
 
-static inline void fillSurface(SUISurface &surface, const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a){}
+static inline void fillSurface(SUISurface &surface, const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
+{
+    SUIColor color(r, g, b, a);
+    color24_t  tmp = color.getColor();
+    const pos_t width = surface.getData().getWidth();
+    for(int y = 0; y < surface.getData().getHeight(); y++){
+        for(int x = 0; x < surface.getData().getWidth(); x++) {
+            memcpy(surface.getData().buffer + (y * width + x) * 3, &tmp, 3);
+        }
+    }
+}
 
-static inline void fillSurface(SUISurface &surface, const SUIPixel &color){}
+static inline void fillSurface(SUISurface &surface, const SUIPixel &color)
+{
+    fillSurface(surface, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+}
 
-static inline void putDot(SUISurface &surface, const pos_t x0, const pos_t y0, const pos_t x, const pos_t y,
-                          const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a){}
+//static inline void putDot(SUISurface &surface, const pos_t x0, const pos_t y0, const pos_t x, const pos_t y,
+//                          const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a){}
 
 static inline void fillBottomFlatTriangle(SUISurface &surface, const SUIPost &v1, const SUIPost &v2, const SUIPost &v3, const SUIColor &color){}
 
