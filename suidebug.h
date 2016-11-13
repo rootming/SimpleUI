@@ -1,5 +1,4 @@
-#ifndef SUIDEBUG_H
-#define SUIDEBUG_H
+#pragma once
 #include <cstdio>
 
 namespace sui {
@@ -39,4 +38,3 @@ public:
 
 }
 
-#endif // SUIDEBUG_H

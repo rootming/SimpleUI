@@ -1,5 +1,5 @@
-#ifndef SUISURFACE_H
-#define SUISURFACE_H
+#pragma once
+
 #include <cstring>
 #include "suiobject.h"
 #include "suitype.h"
@@ -39,4 +39,3 @@ private:
 
 }
 
-#endif // SUISURFACE_H

@@ -1,5 +1,4 @@
-#ifndef SUICONFIG_H
-#define SUICONFIG_H
+#pragma once
 
 namespace sui {
 //#define SUI_BIG_ENDIAN
@@ -8,4 +7,3 @@ namespace sui {
 }
 
 
-#endif // SUICONFIG_H

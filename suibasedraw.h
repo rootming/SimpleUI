@@ -1,5 +1,5 @@
-#ifndef BASEDRAW_H
-#define BASEDRAW_H
+#pragma once
+
 #include <iostream>
 #include "suisurface.h"
 #include "suitype.h"
@@ -361,4 +361,4 @@ static inline void drawTriangleFill(SUISurface &surface, const SUIPost &post1, c
 
 }
 
-#endif // SUIBASEDRAW_H
+

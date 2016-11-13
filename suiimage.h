@@ -1,5 +1,4 @@
-#ifndef SUIIMAGE_H
-#define SUIIMAGE_H
+#pragma once
 
 #include "suitype.h"
 #include "suisurface.h"
@@ -20,4 +19,3 @@ private:
 
 }
 
-#endif // SUIIMAGE_H

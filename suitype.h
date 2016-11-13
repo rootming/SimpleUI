@@ -1,5 +1,5 @@
-#ifndef BASETYPE_H
-#define BASETYPE_H
+#pragma once
+
 #include <inttypes.h>
 #include <cmath>
 #include <cstddef>
@@ -239,4 +239,4 @@ struct SUIPixel:public SUIPost, SUIColor
 }
 
 
-#endif // BASETYPE_H
+

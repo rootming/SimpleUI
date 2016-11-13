@@ -1,5 +1,5 @@
-#ifndef SUIOBJECT_H
-#define SUIOBJECT_H
+#pragma once
+
 #include <vector>
 
 
@@ -21,4 +21,3 @@ private:
 };
 
 }
-#endif // SUIOBJECT_H

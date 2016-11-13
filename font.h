@@ -1,5 +1,4 @@
-#ifndef ___FONT_H__
-#define ___FONT_H__
+#pragma once
 
 #include<stdint.h>
 //#define FONT_WIDTH  6
@@ -22,7 +21,4 @@
 /* Font character bitmap data. */
 //static uint16_t font_bits[2230] =
 extern uint8_t font6x8_bits[2230];
-
-
-#endif
 

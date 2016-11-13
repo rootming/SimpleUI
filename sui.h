@@ -1,5 +1,4 @@
-#ifndef SUI_H
-#define SUI_H
+#pragma once
 
 #include "suibasedraw.h"
 #include "suidebug.h"
@@ -11,4 +10,3 @@
 
 int SUIMain(int argc, char **argv);
 
-#endif // SUI_H
