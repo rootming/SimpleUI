@@ -9,4 +9,6 @@
 
 #define SIMPLE_UI_VERSION "1.0"
 
+int SUIMain(int argc, char **argv);
+
 #endif // SUI_H

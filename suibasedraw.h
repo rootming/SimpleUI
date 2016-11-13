@@ -151,15 +151,53 @@ static inline void drawRectFill(SUISurface &surface, const SUIRect &rect, const 
 
 
 /* 画圆函数 */
+
+static inline void putDot(SUISurface &surface, const pos_t x0, const pos_t y0, const pos_t x, const pos_t y,
+                          const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
+{
+        drawPixel(surface, x0 + x, y0 + y, r, g, b, a);
+        drawPixel(surface, x0 + x, y0 - y, r, g, b, a);
+        drawPixel(surface, x0 - x, y0 + y, r, g, b, a);
+        drawPixel(surface, x0 - x, y0 - y, r, g, b, a);
+        drawPixel(surface, x0 + y, y0 + x, r, g, b, a);
+        drawPixel(surface, x0 + y, y0 - x, r, g, b, a);
+        drawPixel(surface, x0 - y, y0 + x, r, g, b, a);
+        drawPixel(surface, x0 - y, y0 - x, r, g, b, a);
+}
+
 static inline void drawCircle(SUISurface &surface, const pos_t x0, const pos_t y0, const int32_t rad,
                               const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
 {
+    if(x0 - r >= surface.getData().getWidth() || y0 - r >= surface.getData().getHeight())
+           return;
+       pos_t x, y;
+       float d;
+       x = 0;
+       y = rad;
+       d = 5.0 / 4 - r;
 
+       while(x <= y){
+           putDot(surface, x0, y0, x, y, r, g, b, a);
+           if(d < 0)
+               d += x * 2.0 + 1;
+           else{
+               d += 2.0 * (x - y) + 1;
+               //d+=2.0*(x-y)+5;
+               y--;
+           }
+           x++;
+       }
 }
 
 static inline void drawCircleFill(SUISurface &surface, const pos_t x, const pos_t y, const int32_t rad,
         const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
 {
+        pos_t yy;
+        double tmp;
+        for(yy = y - rad; yy <= y + rad; yy++){
+            tmp = sqrt(rad * rad - (yy - y) * (yy - y));
+            drawLine(surface, x - tmp, yy, x + tmp, yy, r, g, b, a);
+        }
 
 }
 
@@ -192,7 +230,7 @@ static inline void drawStr(SUISurface &surface, const std::string &str, const po
         }
         for(uint32_t l = 0; l < 10; l++){
 #ifdef SUI_BIG_ENDIAN
-
+            SUIDEBUG_WORRY("Not support!!!");
 #else
             for(uint32_t i = 0; i < 8; i++){
                 if((font6x8_bits[seek] >> i) & 0x1){
@@ -238,16 +276,88 @@ static inline void fillSurface(SUISurface &surface, const SUIPixel &color)
     fillSurface(surface, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 }
 
-//static inline void putDot(SUISurface &surface, const pos_t x0, const pos_t y0, const pos_t x, const pos_t y,
-//                          const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a){}
+static inline void fillBottomFlatTriangle(SUISurface &surface, const SUIPost &post1, const SUIPost &post2, const SUIPost &post3, const SUIColor &color)
+{
+    pos_t invslope1 = (post2.x - post1.x) / (post2.y - post1.y);
+    pos_t invslope2 = (post3.x - post1.x) / (post3.y - post1.y);
 
-static inline void fillBottomFlatTriangle(SUISurface &surface, const SUIPost &v1, const SUIPost &v2, const SUIPost &v3, const SUIColor &color){}
+    pos_t curx1 = post1.x;
+    pos_t curx2 = post1.x;
 
-static inline void fillTopFlatTriangle(SUISurface &surface, const SUIPost &v1, const SUIPost &v2, const SUIPost &v3, const SUIColor &color){}
+    const uint8_t red = color.getRed();
+    const uint8_t green  = color.getGreen();
+    const uint8_t blue  = color.getBlue();
+    const uint8_t alpha = color.getAlpha();
 
-static inline void drawTriangle(SUISurface &surface, const SUIPost &post1, const SUIPost &post2, const SUIPost &post3, const SUIColor &color){}
+    for (pos_t scanlineY = post1.y; scanlineY <= post2.y; scanlineY++)
+    {
+      drawLine(surface, curx1, scanlineY, curx2, scanlineY, red, green, blue, alpha);
+      curx1 += invslope1;
+      curx2 += invslope2;
+    }
+}
 
-static inline void drawTriangleFill(SUISurface &surface, const SUIPost &post1, const SUIPost &post2, const SUIPost &post3, const SUIColor &color){}
+static inline void fillTopFlatTriangle(SUISurface &surface, const SUIPost &post1, const SUIPost &post2, const SUIPost &post3, const SUIColor &color)
+{
+    int32_t invslope1 = (post3.x - post1.x) / (post3.y - post1.y);
+    int32_t invslope2 = (post3.x - post2.x) / (post3.y - post2.y);
+
+    int32_t curx1 = post3.x;
+    int32_t curx2 = post3.x;
+
+    const uint8_t red = color.getRed();
+    const uint8_t green  = color.getGreen();
+    const uint8_t blue  = color.getBlue();
+    const uint8_t alpha = color.getAlpha();
+
+    for (int32_t scanlineY = post3.y; scanlineY > post1.y; scanlineY--)
+    {
+      curx1 -= invslope1;
+      curx2 -= invslope2;
+      drawLine(surface, curx1, scanlineY, curx2, scanlineY, red, green, blue, alpha);
+    }
+}
+
+static inline void drawTriangle(SUISurface &surface, const SUIPost &post1, const SUIPost &post2, const SUIPost &post3, const SUIColor &color)
+{
+    drawLine(surface, post1, post2, color);
+    drawLine(surface, post1, post3, color);
+    drawLine(surface, post2, post3, color);
+}
+
+static inline void drawTriangleFill(SUISurface &surface, const SUIPost &post1, const SUIPost &post2, const SUIPost &post3, const SUIColor &color)
+{
+    std::vector<SUIPost> v;
+    v.push_back(post1);
+    v.push_back(post2);
+    v.push_back(post3);
+    sort(v.begin(), v.end(), [](const SUIPost &a, const SUIPost &b){ return a.y < b.y;});
+   #ifdef DEBUG
+       for(auto it:v)
+           cout << it.x << ":" << it.y << endl;
+       SUIDEBUG_INFO("Sort postition\n");
+   #endif
+    /* here we know that v1.y <= v2.y <= v3.y */
+    /* check for trivial case of bottom-flat triangle */
+    if (v[1].y == v[2].y)
+    {
+        fillBottomFlatTriangle(surface, v[0], v[1], v[2], color);
+    }
+    /* check for trivial case of top-flat triangle */
+    else if (v[0].y == v[1].y)
+    {
+        fillTopFlatTriangle(surface, v[0], v[1], v[2], color);
+    }
+    else
+    {
+     //         (int)(vt1.x + ((float)(vt2.y - vt1.y) / (float)(vt3.y - vt1.y)) * (vt3.x - vt1.x)), vt2.y);
+        /* general case - split the triangle in a topflat and bottom-flat one */
+        SUIPost v4((v[0].x + ((v[1].y - v[0].y) / (v[2].y - v[0].y)) * (v[2].x - v[0].x)), v[1].y);
+        fillBottomFlatTriangle(surface, v[0], v[1], v4, color);
+        fillTopFlatTriangle(surface, v[1], v4, v[2], color);
+    }
+
+}
 
 }
 
