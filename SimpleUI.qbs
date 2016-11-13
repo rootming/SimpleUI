@@ -2,11 +2,13 @@ import qbs
 
 CppApplication {
     consoleApplication: true
-    cpp.cxxFlags: "-std=c++11"
+    cpp.cxxFlags: ["-std=c++11", "-Wall"]
+    //cpp.runtimeLibrary: "static"
     files: [
         "font.cpp",
         "font.h",
         "main.cpp",
+        "sui.cpp",
         "sui.h",
         "suibasedraw.cpp",
         "suibasedraw.h",

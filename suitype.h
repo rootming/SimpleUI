@@ -14,6 +14,7 @@ namespace sui {
 typedef enum { DEPTH1, DEPTH8, DEPTH16, DEPTH24 } SUIDEPTH;
 typedef int64_t pos_t;
 typedef int32_t color24_t;
+typedef uint64_t len_t;
 
 
 
@@ -119,7 +120,7 @@ struct SUIData: public SUIRect
 
     SUIDEPTH depth;
     uint8_t *buffer;	//缓冲图层指针
-    size_t bytes(void) const { return w * h * sizeof(uint8_t) * 3; }
+    len_t bytes(void) const { return w * h * sizeof(uint8_t) * 3; }
 
 };
 

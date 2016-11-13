@@ -19,7 +19,7 @@ public:
 static inline void drawPixel(SUISurface &surface, const pos_t x, const pos_t y,
                              const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
 {
-    size_t seek;
+    len_t seek;
     color24_t tmp = 0;
     tmp = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
     seek = (x + surface.getData().getWidth() * y) * 3;
@@ -43,7 +43,7 @@ static inline void drawPixel(SUISurface &surface, const pos_t x, const pos_t y,
 
 static inline void drawPixel(SUISurface &surface, const SUIPixel pixel)
 {
-    size_t seek;
+    len_t seek;
     seek = (pixel.x + surface.getData().getWidth() * pixel.y) * 3;
     color24_t tmp = pixel.getColor();
     if(seek <= surface.getData().bytes()){
@@ -77,8 +77,8 @@ static inline void drawLine(SUISurface &surface, const pos_t x1, const pos_t y1,
 
 
     if(start_y == end_y) {
-        size_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
-        size_t seek_end = (end_x + surface.getData().getWidth() * start_y) * 3;
+        len_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
+        len_t seek_end = (end_x + surface.getData().getWidth() * start_y) * 3;
         while(seek_start <= seek_end) {
             memcpy(surface.getData().buffer + seek_start, &tmp, 3);
             seek_start += 3;
@@ -86,8 +86,8 @@ static inline void drawLine(SUISurface &surface, const pos_t x1, const pos_t y1,
     }
 
     else if(start_x == end_x) {
-        size_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
-        size_t seek_end = (start_x + surface.getData().getWidth() * end_y) * 3;
+        len_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
+        len_t seek_end = (start_x + surface.getData().getWidth() * end_y) * 3;
         while(seek_start <= seek_end) {
             memcpy(surface.getData().buffer + seek_start, &tmp, 3);
             seek_start += surface.getData().getWidth() * 3;
@@ -209,8 +209,8 @@ static inline void drawStr(SUISurface &surface, const std::string &str, const po
     SUIDEBUG_INFO("%s\n", str.c_str());
 #endif
     pos_t ox, oy;
-    size_t seek;
-    const size_t len = str.length();
+    len_t seek;
+    const len_t len = str.length();
     const pos_t width = 8;                  //define font width
     ox = x;
     oy = y;
@@ -221,7 +221,7 @@ static inline void drawStr(SUISurface &surface, const std::string &str, const po
     const uint8_t blue = color.getBlue();
     const uint8_t alpha = color.getAlpha();
 
-    for(size_t c = 0; c < len; c++){
+    for(len_t c = 0; c < len; c++){
         seek = tmp[c] * 10;
         if(tmp[c] == '\n'){
             ox = x;

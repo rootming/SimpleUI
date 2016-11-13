@@ -6,6 +6,7 @@ using namespace sui;
 
 int main(int argc, char *argv[])
 {
+    SUIMain(argc, argv);
     SUISurface parent(500, 500);
     SUIColor color(200, 200, 100);
     string str = "String print test.";
