@@ -4,6 +4,8 @@ CppApplication {
     consoleApplication: true
     cpp.cxxFlags: "-std=c++11"
     files: [
+        "font.cpp",
+        "font.h",
         "main.cpp",
         "sui.h",
         "suibasedraw.cpp",
