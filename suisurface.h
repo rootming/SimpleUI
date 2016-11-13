@@ -11,7 +11,7 @@ class SUISurface: public SUIObject
 public:
     SUISurface(SUISurface *parent = nullptr);
     SUISurface(const int64_t w, const int64_t h, SUISurface *parent = nullptr);
-    virtual void resize(const int32_t w, const int32_t h)
+    virtual void resize(const int64_t w, const int64_t h)
     {
         data.setWidth(w);
         data.setHeight(h);

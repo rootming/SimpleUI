@@ -4,6 +4,7 @@
 #include "suisurface.h"
 #include "suitype.h"
 #include "font.h"
+#include "suidebug.h"
 
 using namespace sui;
 
@@ -120,7 +121,7 @@ static inline void drawRect(SUISurface &surface, const pos_t x, const pos_t y, c
 static inline void drawRectFill(SUISurface &surface, const pos_t x, const pos_t y, const pos_t w, const pos_t h,
                                 const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
 {
-    for(int start = y; start < y + h; start++) {
+    for(pos_t start = y; start < y + h; start++) {
         drawLine(surface, x, start, x + w, start, r, g, b, a);
     }
 
