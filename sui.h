@@ -8,5 +8,17 @@
 
 #define SIMPLE_UI_VERSION "1.0"
 
+using namespace sui;
+
+namespace sui{
+
+
+class SUI
+{
+
+};
+
 int SUIMain(int argc, char **argv);
+
+}
 

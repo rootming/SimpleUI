@@ -1,6 +1,9 @@
 #include "sui.h"
 using namespace std;
 
+namespace sui{
+
+
 int SUIMain(int argc, char **argv)
 {
 //#ifdef DEBUG
@@ -9,4 +12,6 @@ int SUIMain(int argc, char **argv)
         cout << "\t" << argv[i] << endl;
 //#endif
     return 0;
+}
+
 }

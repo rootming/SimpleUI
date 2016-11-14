@@ -1,6 +1,7 @@
 #pragma once
 
-#include<stdint.h>
+#include <stdint.h>
+
 //#define FONT_WIDTH  6
 //#define FONT_HEIGHT 10
 
@@ -20,5 +21,8 @@
 
 /* Font character bitmap data. */
 //static uint16_t font_bits[2230] =
+
+
+
 extern uint8_t font6x8_bits[2230];
 
