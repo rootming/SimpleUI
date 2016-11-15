@@ -5,6 +5,7 @@ CppApplication {
     cpp.cxxFlags: ["-std=c++11", "-Wall"]
     //cpp.runtimeLibrary: "static"
     files: [
+        "config.h",
         "font.cpp",
         "font.h",
         "main.cpp",

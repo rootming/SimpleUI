@@ -154,7 +154,7 @@ struct SUIColor
     }
 
     void setColorMode(SUIDEPTH mode) { depth = mode; }
-    void setColor(const color24_t color){ pixel = color; }
+    void setColor(const color24_t color) { pixel = color; }
     void setRed(const uint8_t value) { pixel |= value << RED_SEEK; }
     void setGreen(const uint8_t value) { pixel |= value << GREEN_SEEK; }
     void setBlue(const uint8_t value) { pixel |= value << BLUE_SEEK; }

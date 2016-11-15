@@ -14,7 +14,7 @@ SUIObject::SUIObject(SUIObject *parent)
 void SUIObject::addChild(SUIObject *child)
 {
     node.push_back(child);
-    SUIDEBUG_INFO("SUIObject: add child object.\n");
+    SUI_DEBUG_INFO("SUIObject: add child object.\n");
 }
 
 void SUIObject::setParent(SUIObject *parent)
@@ -23,12 +23,12 @@ void SUIObject::setParent(SUIObject *parent)
     parentObj = parent;
     if(parent != nullptr)
         parent->addChild(this);
-    SUIDEBUG_INFO("SUIObject: set parent object.\n");
+    SUI_DEBUG_INFO("SUIObject: set parent object.\n");
 }
 
 void SUIObject::addObjNode(void)
 {
-    SUIDEBUG_INFO("SUIObject: add object.\n");
+    SUI_DEBUG_INFO("SUIObject: add object.\n");
     objNode.push_back(this);
 }
 

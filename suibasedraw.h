@@ -1,12 +1,14 @@
 #pragma once
 
 #include <iostream>
+#include <algorithm>
 #include "suisurface.h"
 #include "suitype.h"
 #include "font.h"
 #include "suidebug.h"
 
 using namespace sui;
+using namespace std;
 
 namespace sui{
 
@@ -23,13 +25,14 @@ static inline void drawPixel(SUISurface &surface, const pos_t x, const pos_t y,
     color24_t tmp = 0;
     tmp = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
     seek = (x + surface.getData().getWidth() * y) * 3;
+
     //边缘检测
     //cout << "Draw postion:" << x << " " << y << endl;
 //    //cout<< surface.width << " " << surface.height << endl;
-//    if(x >= 0 && y >= 0 && x < surface.getData().getWidth() && y < surface.getData().getHeight()){
+//    if(x >= 0 && y >= 0 && x < surface.getData().getWidth() && y < surface.getData().getHeight()) {
 //        surface.getData().buffer[seek] = tmp;
 //    }
-    if(seek <= surface.getData().bytes()){
+    if(seek <= surface.getData().bytes()) {
         //*((int32_t*)&(surface.getData().buffer[seek])) = tmp;
         memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 3);
     }
@@ -46,7 +49,7 @@ static inline void drawPixel(SUISurface &surface, const SUIPixel pixel)
     len_t seek;
     seek = (pixel.x + surface.getData().getWidth() * pixel.y) * 3;
     color24_t tmp = pixel.getColor();
-    if(seek <= surface.getData().bytes()){
+    if(seek <= surface.getData().bytes()) {
         //*((int32_t*)&(surface.getData().buffer[seek])) = pixel.getColor();
         memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 3);
     }
@@ -59,43 +62,259 @@ static inline void drawPixel(SUISurface &surface, const SUIPixel pixel)
 
 
 /* 画线函数 */
-static inline void drawLine(SUISurface &surface, const pos_t x1, const pos_t y1, const pos_t x2, const pos_t y2,
+
+static inline void plot(SUISurface &surface, const pos_t x, const pos_t y, const pos_t reverse,
+                        const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
+{
+    len_t seek;
+    color24_t tmp = 0;
+    tmp = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
+    if (reverse)
+        seek = (y + surface.getData().getWidth() * x) * 3;
+    else
+        seek = (x + surface.getData().getWidth() * y) * 3;
+
+    //边缘检测
+    //cout << "Draw postion:" << x << " " << y << endl;
+//    //cout<< surface.width << " " << surface.height << endl;
+//    if(x >= 0 && y >= 0 && x < surface.getData().getWidth() && y < surface.getData().getHeight()) {
+//        surface.getData().buffer[seek] = tmp;
+//    }
+    if(seek <= surface.getData().bytes()) {
+        //*((int32_t*)&(surface.getData().buffer[seek])) = tmp;
+        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 3);
+    }
+    else{
+#ifdef SUI_DEBUG
+        SUI_DEBUG_WORRY("Draw Pixel out of Range!\n");
+#endif
+    }
+}
+
+static inline void drawLine(SUISurface &surface, const pos_t px1, const pos_t py1, const pos_t px2, const pos_t py2,
         const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
 {
-    pos_t start_x, end_x;
-    pos_t start_y, end_y;
-    SUIColor pixel(r, g, b, a);
-    color24_t tmp = pixel.getColor();
+//    pos_t start_x, end_x;
+//    pos_t start_y, end_y;
+//    SUIColor pixel(r, g, b, a);
+//    color24_t tmp = pixel.getColor();
 
 
-    start_x = getMin(x1, x2);
-    start_y = getMin(y1, y2);
+//    start_x = getMin(x1, x2);
+//    start_y = getMin(y1, y2);
 
-    end_x = getMax(x1, x2);
-    end_y = getMax(y1, y2);
+//    end_x = getMax(x1, x2);
+//    end_y = getMax(y1, y2);
 
 
 
-    if(start_y == end_y) {
-        len_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
-        len_t seek_end = (end_x + surface.getData().getWidth() * start_y) * 3;
-        while(seek_start <= seek_end) {
-            memcpy(surface.getData().buffer + seek_start, &tmp, 3);
-            seek_start += 3;
-        }
+//    if(start_y == end_y) {
+//        len_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
+//        len_t seek_end = (end_x + surface.getData().getWidth() * start_y) * 3;
+//        while(seek_start <= seek_end) {
+//            memcpy(surface.getData().buffer + seek_start, &tmp, 3);
+//            seek_start += 3;
+//        }
+//    }
+
+//    else if(start_x == end_x) {
+//        len_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
+//        len_t seek_end = (start_x + surface.getData().getWidth() * end_y) * 3;
+//        while(seek_start <= seek_end) {
+//            memcpy(surface.getData().buffer + seek_start, &tmp, 3);
+//            seek_start += surface.getData().getWidth() * 3;
+//        }
+//    }
+
+//    else {
+
+//    }
+
+
+    // Symmetric Double Step
+    pos_t a1 = px1, b1 = py1, a2 = px2, b2 = py2;
+    pos_t dx, dy, incr1, incr2, d, x, y, xend, c, pixels_left;
+    pos_t x1, y1;
+    pos_t sign_x, sign_y, step, reverse, i;
+
+    sign_x = (a2 - a1) < 0 ? -1 : 1;
+    dx = (a2 - a1) * sign_x;
+    sign_y = (b2 - b1) < 0 ? -1 : 1;
+    dy = (b2 - b1) * sign_y;
+    // Decide increment sign by the slope sign
+    if (sign_x == sign_y)
+        step = 1;
+    else
+        step = -1;
+
+    // Choose axis of greatest movement (make * dx)
+    if (dy > dx) {
+        swap(a1, b1);
+        swap(a2, b2);
+        swap(dx, dy);
+        reverse = 1;
+    } else
+        reverse = 0;
+    // Note! Error check for dx == 0 should be included here
+    // Start from the smaller coordinate
+    if (a1 > a2) {
+        x = a2;
+        y = b2;
+        x1 = a1;
+        y1 = b1;
+    } else {
+        x = a1;
+        y = b1;
+        x1 = a2;
+        y1 = b2;
     }
 
-    else if(start_x == end_x) {
-        len_t seek_start = (start_x + surface.getData().getWidth() * start_y) * 3;
-        len_t seek_end = (start_x + surface.getData().getWidth() * end_y) * 3;
-        while(seek_start <= seek_end) {
-            memcpy(surface.getData().buffer + seek_start, &tmp, 3);
-            seek_start += surface.getData().getWidth() * 3;
+    // Note! dx = n implies 0 - n or (dx + 1) pixels to be set
+    // Go round loop dx / 4 times then plot last 0, 1, 2 or 3 pixels
+    // In fact (dx - 1) / 4 as 2 pixels are already plotted
+    xend = (dx - 1) / 4;
+    // Number of pixels left over at the end
+    pixels_left = (dx - 1) % 4;
+    plot(surface, x, y, reverse, r, g, b, a);
+    // Plot only one pixel for zero length vectors
+    if (pixels_left < 0)
+        return;
+
+    // Plot first two pints
+    plot(surface, x1, y1, reverse, r, g, b, a);
+    incr2 = 4 * dy - 2 * dx;
+    // Slope less than 1/2
+    if (incr2 < 0) {
+        c = 2 * dy;
+        incr1 = 2 * c;
+        d = incr1 - dx;
+
+        for (i = 0; i < xend; i++) {	// Plotting loop
+            ++x;
+            --x1;
+            if (d < 0) {
+                // Pattern 1 forwards
+                plot(surface, x, y, reverse, r, g, b, a);
+                plot(surface, ++x, y, reverse, r, g, b, a);
+                // Pattern 1 backwards
+                plot(surface, x1, y1, reverse, r, g, b, a);
+                plot(surface, --x1, y1, reverse, r, g, b, a);
+                d += incr1;
+            } else {
+                if (d < c) {
+                    // Pattern 2 forwards
+                    plot(surface, x, y, reverse, r, g, b, a);
+                    plot(surface, ++x, y += step, reverse, r, g, b, a);
+                    // Pattern 2 backwards
+                    plot(surface, x1, y1, reverse, r, g, b, a);
+                    plot(surface, --x1, y1 -= step, reverse, r, g, b, a);
+                } else {
+                    // Pattern 3 forwards
+                    plot(surface, x, y += step, reverse, r, g, b, a);
+                    plot(surface, ++x, y, reverse, r, g, b, a);
+                    // Pattern 3 backwards
+                    plot(surface, x1, y1 -= step, reverse, r, g, b, a);
+                    plot(surface, --x1, y1, reverse, r, g, b, a);
+                }
+                d += incr2;
+            }
         }
-    }
 
-    else {
+        // Plot last pattern
+        if (pixels_left) {
+            if (d < 0) {
+                // Pattern 1
+                plot(surface, ++x, y, reverse, r, g, b, a);
+                if (pixels_left > 1)
+                    plot(surface, ++x, y, reverse, r, g, b, a);
+                if (pixels_left > 2)
+                    plot(surface, --x1, y1, reverse, r, g, b, a);
+            } else {
+                if (d < c) {
+                    // Pattern 2
+                    plot(surface, ++x, y, reverse, r, g, b, a);
+                    if (pixels_left > 1)
+                        plot(surface, ++x, y += step, reverse, r, g, b, a);
+                    if (pixels_left > 2)
+                        plot(surface, --x1, y1, reverse, r, g, b, a);
+                } else {
+                    // Pattern 3
+                    plot(surface, ++x, y += step, reverse, r, g, b, a);
+                    if (pixels_left > 1)
+                        plot(surface, ++x, y, reverse, r, g, b, a);
+                    if (pixels_left > 2)
+                        plot(surface, --x1, y1 -= step, reverse, r, g, b, a);
+                }
+            }
+        }
+    } else {
+        // Slope greater than 1/2
+        c = 2 * (dy - dx);
+        incr1 = 2 * c;
+        d = incr1 + dx;
 
+        for (i = 0; i < xend; i++) {	// Plotting loop
+            ++x;
+            --x1;
+            if (d > 0) {
+                // Pattern 4 forwards
+                plot(surface, x, y += step, reverse, r, g, b, a);
+                plot(surface, ++x, y += step, reverse, r, g, b, a);
+                // Pattern 4 backwards
+                plot(surface, x1, y1 -= step, reverse, r, g, b, a);
+                plot(surface, --x1, y1 -= step, reverse, r, g, b, a);
+                d += incr1;
+            } else {
+                if (d < c) {
+                    // Pattern 2 forwards
+                    plot(surface, x, y, reverse, r, g, b, a);
+                    plot(surface, ++x, y += step, reverse, r, g, b, a);
+                    // Pattern 2 backwards
+                    plot(surface, x1, y1, reverse, r, g, b, a);
+                    plot(surface, --x1, y1 -= step, reverse, r, g, b, a);
+                } else {
+                    // Pattern 3 forwards
+                    plot(surface, x, y += step, reverse, r, g, b, a);
+                    plot(surface, ++x, y, reverse, r, g, b, a);
+                    // Pattern 3 backwards
+                    plot(surface, x1, y1 -= step, reverse, r, g, b, a);
+                    plot(surface, --x1, y1, reverse, r, g, b, a);
+                }
+                d += incr2;
+            }
+        }
+
+        // Plot last pattern
+        if (pixels_left) {
+            if (d > 0) {
+                // Pattern 4
+                plot(surface, ++x, y += step, reverse, r, g, b, a);
+                if (pixels_left > 1)
+                    plot(surface, ++x, y += step, reverse, r, g, b, a);
+                if (pixels_left > 2)
+                    plot(surface, --x1, y1 -= step, reverse, r, g, b, a);
+            } else {
+                if (d < c) {
+                    // Pattern 2
+                    plot(surface, ++x, y, reverse, r, g, b, a);
+                    if (pixels_left > 1)
+                        plot(surface, ++x, y += step, reverse, r, g, b, a);
+                    if (pixels_left > 2)
+                        plot(surface, --x1, y1, reverse, r, g, b, a);
+                } else {
+                    // Pattern 3
+                    plot(surface, ++x, y += step, reverse, r, g, b, a);
+                    if (pixels_left > 1)
+                        plot(surface, ++x, y, reverse, r, g, b, a);
+                    if (pixels_left > 2) {
+                        if (d > c)	// Step 3
+                            plot(surface, --x1, y1 -= step, reverse, r, g, b, a);
+                        else		// Step 2
+                            plot(surface, --x1, y1, reverse, r, g, b, a);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -124,8 +343,6 @@ static inline void drawRectFill(SUISurface &surface, const pos_t x, const pos_t 
     for(pos_t start = y; start < y + h; start++) {
         drawLine(surface, x, start, x + w, start, r, g, b, a);
     }
-
-
 }
 
 static inline void drawRect(SUISurface &surface, const SUIRect &rect, const SUIColor &color)
@@ -142,12 +359,12 @@ static inline void drawRectFill(SUISurface &surface, const SUIRect &rect, const 
 
 /* 画正方形函数 */
 //static inline void drawSquare(SUISurface &surface, int32_t x, int32_t y, int32_t len, uint8_t r,
-//        uint8_t g, uint8_t b, uint8_t a = 0){}
+//        uint8_t g, uint8_t b, uint8_t a = 0) {}
 //static inline void drawSquareFill(SUISurface &surface, int32_t x, int32_t y, int32_t len,
-//        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0){}
+//        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0) {}
 
-//static inline void drawSquare(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color){}
-//static inline void drawSquareFill(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color){}
+//static inline void drawSquare(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color) {}
+//static inline void drawSquareFill(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color) {}
 
 
 /* 画圆函数 */
@@ -176,7 +393,7 @@ static inline void drawCircle(SUISurface &surface, const pos_t x0, const pos_t y
        y = rad;
        d = 5.0 / 4 - r;
 
-       while(x <= y){
+       while(x <= y) {
            putDot(surface, x0, y0, x, y, r, g, b, a);
            if(d < 0)
                d += x * 2.0 + 1;
@@ -194,7 +411,7 @@ static inline void drawCircleFill(SUISurface &surface, const pos_t x, const pos_
 {
         pos_t yy;
         double tmp;
-        for(yy = y - rad; yy <= y + rad; yy++){
+        for(yy = y - rad; yy <= y + rad; yy++) {
             tmp = sqrt(rad * rad - (yy - y) * (yy - y));
             drawLine(surface, x - tmp, yy, x + tmp, yy, r, g, b, a);
         }
@@ -221,19 +438,19 @@ static inline void drawStr(SUISurface &surface, const std::string &str, const po
     const uint8_t blue = color.getBlue();
     const uint8_t alpha = color.getAlpha();
 
-    for(len_t c = 0; c < len; c++){
+    for(len_t c = 0; c < len; c++) {
         seek = tmp[c] * 10;
-        if(tmp[c] == '\n'){
+        if(tmp[c] == '\n') {
             ox = x;
             oy += 10;
             continue;
         }
-        for(uint32_t l = 0; l < 10; l++){
+        for(uint32_t l = 0; l < 10; l++) {
 #ifdef SUI_BIG_ENDIAN
             SUIDEBUG_WORRY("Not support!!!");
 #else
-            for(uint32_t i = 0; i < 8; i++){
-                if((font6x8_bits[seek] >> i) & 0x1){
+            for(uint32_t i = 0; i < 8; i++) {
+                if((font6x8_bits[seek] >> i) & 0x1) {
                     drawPixel(surface, ox - i, oy + l, red, green, blue, alpha);
                     //cout<<"*";
                 }
@@ -264,7 +481,7 @@ static inline void fillSurface(SUISurface &surface, const uint8_t r, const uint8
     SUIColor color(r, g, b, a);
     color24_t  tmp = color.getColor();
     const pos_t width = surface.getData().getWidth();
-    for(int y = 0; y < surface.getData().getHeight(); y++){
+    for(int y = 0; y < surface.getData().getHeight(); y++) {
         for(int x = 0; x < surface.getData().getWidth(); x++) {
             memcpy(surface.getData().buffer + (y * width + x) * 3, &tmp, 3);
         }
@@ -289,8 +506,7 @@ static inline void fillBottomFlatTriangle(SUISurface &surface, const SUIPost &po
     const uint8_t blue  = color.getBlue();
     const uint8_t alpha = color.getAlpha();
 
-    for (pos_t scanlineY = post1.y; scanlineY <= post2.y; scanlineY++)
-    {
+    for (pos_t scanlineY = post1.y; scanlineY <= post2.y; scanlineY++) {
       drawLine(surface, curx1, scanlineY, curx2, scanlineY, red, green, blue, alpha);
       curx1 += invslope1;
       curx2 += invslope2;
@@ -310,8 +526,7 @@ static inline void fillTopFlatTriangle(SUISurface &surface, const SUIPost &post1
     const uint8_t blue  = color.getBlue();
     const uint8_t alpha = color.getAlpha();
 
-    for (int32_t scanlineY = post3.y; scanlineY > post1.y; scanlineY--)
-    {
+    for (int32_t scanlineY = post3.y; scanlineY > post1.y; scanlineY--) {
       curx1 -= invslope1;
       curx2 -= invslope2;
       drawLine(surface, curx1, scanlineY, curx2, scanlineY, red, green, blue, alpha);
@@ -331,7 +546,7 @@ static inline void drawTriangleFill(SUISurface &surface, const SUIPost &post1, c
     v.push_back(post1);
     v.push_back(post2);
     v.push_back(post3);
-    sort(v.begin(), v.end(), [](const SUIPost &a, const SUIPost &b){ return a.y < b.y;});
+    sort(v.begin(), v.end(), [](const SUIPost &a, const SUIPost &b) { return a.y < b.y;});
    #ifdef DEBUG
        for(auto it:v)
            cout << it.x << ":" << it.y << endl;
@@ -339,17 +554,14 @@ static inline void drawTriangleFill(SUISurface &surface, const SUIPost &post1, c
    #endif
     /* here we know that v1.y <= v2.y <= v3.y */
     /* check for trivial case of bottom-flat triangle */
-    if (v[1].y == v[2].y)
-    {
+    if (v[1].y == v[2].y) {
         fillBottomFlatTriangle(surface, v[0], v[1], v[2], color);
     }
     /* check for trivial case of top-flat triangle */
-    else if (v[0].y == v[1].y)
-    {
+    else if (v[0].y == v[1].y) {
         fillTopFlatTriangle(surface, v[0], v[1], v[2], color);
     }
-    else
-    {
+    else{
      //         (int)(vt1.x + ((float)(vt2.y - vt1.y) / (float)(vt3.y - vt1.y)) * (vt3.x - vt1.x)), vt2.y);
         /* general case - split the triangle in a topflat and bottom-flat one */
         SUIPost v4((v[0].x + ((v[1].y - v[0].y) / (v[2].y - v[0].y)) * (v[2].x - v[0].x)), v[1].y);

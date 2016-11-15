@@ -6,7 +6,7 @@ namespace sui{
 
 int SUIMain(int argc, char **argv)
 {
-//#ifdef DEBUG
+//#ifdef SUI_DEBUG
     cout << "Arg:" << endl;
     for(int i = 0; i < argc; i++)
         cout << "\t" << argv[i] << endl;
