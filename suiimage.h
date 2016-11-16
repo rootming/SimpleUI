@@ -11,10 +11,11 @@ class SUIImage
 {
 public:
     SUIImage(SUISurface &surface);
-    void save(const char *name) const;
+    void save(const std::string &filename) const;
 
 private:
     SUIData data;
+    void savePPM(const std::string &filename) const;
 };
 
 }

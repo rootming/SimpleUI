@@ -2,8 +2,10 @@ import qbs
 
 CppApplication {
     consoleApplication: true
-    cpp.cxxFlags: ["-std=c++11", "-Wall"]
+    cpp.cxxFlags: ["-std=c++11", "-stdlib=libc++", "-Wall"]
+    //cpp.cxxFlags: ["-std=c++11", "-Wall"]
     //cpp.runtimeLibrary: "static"
+    //cpp.linkerFlags: "-stdlib=libc++"
     files: [
         "config.h",
         "font.cpp",
