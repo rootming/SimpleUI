@@ -1,6 +1,6 @@
 #include "suiimage.h"
 #include <fstream>
-#include <regex>
+//#include <regex>
 
 using namespace std;
 
@@ -24,6 +24,7 @@ void SUIImage::savePPM(const string &filename) const
 
 void SUIImage::save(const string &filename) const
 {
+    savePPM(filename);
     //enum TYPE { JPG = 0, PNG, BMP, PPM };
     //regex pattern("[Jj][Pp][Ee]{0,1}[Gg]");
 

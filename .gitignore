@@ -1,3 +1,4 @@
 *.user
 *.o
 *.so
+.DS_Store

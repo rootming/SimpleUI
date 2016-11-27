@@ -58,6 +58,10 @@ int main(int argc, char *argv[])
 
     }
     image.save("Test.ppm");
+    SUISurfaceUtility utility;
+    SUISurface mir = utility.mirror(parent);
+    SUIImage m(mir);
+    m.save("mirror.ppm");
 
     return 0;
 }

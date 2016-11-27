@@ -419,7 +419,7 @@ static inline void drawCircleFill(SUISurface &surface, const pos_t x, const pos_
 }
 
 /* 写字符函数,只支持ASCII */
-static inline void drawStr(SUISurface &surface, const std::string &str, const pos_t x, const pos_t y, const SUIColor &color)
+static inline void drawStr(SUISurface &surface, const string &str, const pos_t x, const pos_t y, const SUIColor &color)
 {
 
 #ifdef DEBUG
@@ -471,7 +471,7 @@ static inline void drawStr(SUISurface &surface, const std::string &str, const po
     }
 }
 
-static inline void drawStr(SUISurface &surface, const std::string &str, const SUIPost &post, const SUIColor &color)
+static inline void drawStr(SUISurface &surface, const string &str, const SUIPost &post, const SUIColor &color)
 {
     drawStr(surface, str, post.x, post.y, color);
 }
@@ -542,7 +542,7 @@ static inline void drawTriangle(SUISurface &surface, const SUIPost &post1, const
 
 static inline void drawTriangleFill(SUISurface &surface, const SUIPost &post1, const SUIPost &post2, const SUIPost &post3, const SUIColor &color)
 {
-    std::vector<SUIPost> v;
+    vector<SUIPost> v;
     v.push_back(post1);
     v.push_back(post2);
     v.push_back(post3);

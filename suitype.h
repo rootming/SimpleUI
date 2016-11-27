@@ -7,16 +7,14 @@
 #include <algorithm>
 #include "suiconfig.h"
 
+using namespace std;
+
 namespace sui {
-
-
 
 typedef enum { DEPTH1, DEPTH8, DEPTH16, DEPTH24 } SUIDEPTH;
 typedef int64_t pos_t;
 typedef int32_t color24_t;
 typedef uint64_t len_t;
-
-
 
 //#define GETMAX(a, b) (a) >= (b) ? (a) : (b)
 //#define GETMIN(a, b) (a) <= (b) ? (a) : (b)
@@ -81,8 +79,8 @@ struct SUIRect
     {
         this->x = getMin(pos1.x, pos2.x);
         this->y = getMin(pos1.y, pos2.y);
-        this->w = std::abs(static_cast<long double>(pos1.x - pos2.x));
-        this->h = std::abs(static_cast<long double>(pos1.y - pos2.y));
+        this->w = abs(static_cast<long double>(pos1.x - pos2.x));
+        this->h = abs(static_cast<long double>(pos1.y - pos2.y));
     }
 
     pos_t getX(void) const { return x; }
@@ -97,7 +95,11 @@ struct SUIRect
     void setX(const pos_t post_x) { x = post_x; }
     void setY(const pos_t post_y) { y = post_y; }
 
+    pos_t getScanlineSize(void) const
+    {
+        return w * 3;
 
+    }
 
     pos_t x;
     pos_t y;

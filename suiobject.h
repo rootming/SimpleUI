@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-
+using namespace std;
 
 namespace sui {
 
@@ -11,10 +11,10 @@ public:
     SUIObject(SUIObject *parent = nullptr);
     void addChild(SUIObject *child);
     void setParent(SUIObject *parent);
-    static std::vector<SUIObject *> objNode;
+    static vector<SUIObject *> objNode;
 
 private:
-    std::vector<SUIObject *> node;
+    vector<SUIObject *> node;
     SUIObject *parentObj;
     void addObjNode(void);
 

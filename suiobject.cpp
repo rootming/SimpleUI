@@ -1,9 +1,11 @@
 #include "suiobject.h"
 #include "suidebug.h"
 
+using namespace std;
+
 namespace sui {
 
-std::vector<SUIObject *> SUIObject::objNode;
+vector<SUIObject *> SUIObject::objNode;
 
 SUIObject::SUIObject(SUIObject *parent)
 {

@@ -11,6 +11,16 @@ class SUISurface: public SUIObject
 public:
     SUISurface(SUISurface *parent = nullptr);
     SUISurface(const int64_t w, const int64_t h, SUISurface *parent = nullptr);
+
+
+    SUISurface(const SUISurface& from)
+    {
+        this->x = from.x;
+        this->y = from.y;
+        this->resize(this->getData().getWidth(), this->getData().getHeight());
+        memcpy(this->getData().buffer, from.getData().buffer, from.getData().bytes());
+    }
+
     virtual void resize(const int64_t w, const int64_t h)
     {
         data.setWidth(w);
@@ -28,11 +38,12 @@ public:
 
     const SUIData& getData() const { return data; }
 
+
 protected:
     SUIData data;
 
 private:
-    int64_t x, y;
+    pos_t x, y;
     void init();
 
 };
