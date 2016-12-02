@@ -11,6 +11,7 @@ public:
     SUIObject(SUIObject *parent = nullptr);
     void addChild(SUIObject *child);
     void setParent(SUIObject *parent);
+    SUIObject *getParent(void) const { return parentObj; }
     static vector<SUIObject *> objNode;
 
 private:

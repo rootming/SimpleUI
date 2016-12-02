@@ -9,8 +9,9 @@ class SUISurfaceUtility
 {
 public:
     SUISurfaceUtility();
-    SUISurface rotate(SUISurface &arg, const int angle);
-    SUISurface mirror(SUISurface &arg);
+    static SUISurface rotate(SUISurface &arg, const int angle);
+    static SUISurface mirror(SUISurface &arg);
+
 };
 
 }

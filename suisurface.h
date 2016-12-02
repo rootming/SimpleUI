@@ -13,7 +13,7 @@ public:
     SUISurface(const int64_t w, const int64_t h, SUISurface *parent = nullptr);
 
 
-    SUISurface(const SUISurface& from)
+    SUISurface(const SUISurface& from): SUIObject(from.getParent())
     {
         this->x = from.x;
         this->y = from.y;

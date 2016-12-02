@@ -132,27 +132,32 @@ struct SUIColor
     SUIColor()
     {
         pixel = 0;
+        depth = DEPTH24;
     }
 
     SUIColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
     {
         pixel = 0;
+        depth = DEPTH24;
         pixel = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
     }
 
     SUIColor(color24_t color)
     {
+        depth = DEPTH24;
         pixel = color;
     }
 
     SUIColor(uint16_t color)
     {
+        depth = DEPTH24;
         pixel = color;
     }
 
     SUIColor(uint8_t color)
     {
-        pixel = color;
+        depth = DEPTH24;
+        pixel = color;      
     }
 
     void setColorMode(SUIDEPTH mode) { depth = mode; }
@@ -170,6 +175,7 @@ struct SUIColor
 
     color24_t pixel;
     SUIDEPTH depth;
+
 
 } ;
 
