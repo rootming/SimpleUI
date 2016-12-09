@@ -358,13 +358,35 @@ static inline void drawRectFill(SUISurface &surface, const SUIRect &rect, const 
 }
 
 /* 画正方形函数 */
-//static inline void drawSquare(SUISurface &surface, int32_t x, int32_t y, int32_t len, uint8_t r,
-//        uint8_t g, uint8_t b, uint8_t a = 0) {}
-//static inline void drawSquareFill(SUISurface &surface, int32_t x, int32_t y, int32_t len,
-//        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0) {}
+static inline void drawSquare(SUISurface &surface, int32_t x, int32_t y, int32_t len, uint8_t r,
+        uint8_t g, uint8_t b, uint8_t a = 0) 
+{
+    drawLine(surface, x, y, x + len, y, r, g, b, a);
+    drawLine(surface, x, y, x, y + len, r, g, b, a);
+    drawLine(surface, x + len, y, x + len, y + len, r, g, b, a);
+    drawLine(surface, x, y + len, x + len, y + len, r, g, b, a);
+}
 
-//static inline void drawSquare(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color) {}
-//static inline void drawSquareFill(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color) {}
+static inline void drawSquareFill(SUISurface &surface, int32_t x, int32_t y, int32_t len,
+        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0) 
+{
+
+    for(pos_t start = y; start < y + len; start++) {
+        drawLine(surface, x, start, x + len, start, r, g, b, a);
+    }
+}
+
+static inline void drawSquare(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color)
+{
+    drawSquare(surface, x, y, len, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+
+}
+
+static inline void drawSquareFill(SUISurface &surface, int32_t x, int32_t y, int32_t len, SUIColor &color)
+{
+    drawSquareFill(surface, x, y, len, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+
+}
 
 
 /* 画圆函数 */
@@ -432,7 +454,7 @@ static inline void drawStr(SUISurface &surface, const string &str, const pos_t x
     ox = x;
     oy = y;
 
-    const char *tmp = str.c_str();
+    const char * const tmp = str.c_str();
     const uint8_t red = color.getRed();
     const uint8_t green = color.getGreen();
     const uint8_t blue = color.getBlue();

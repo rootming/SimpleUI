@@ -24,6 +24,9 @@ int main(int argc, char *argv[])
     drawRectFill(parent, 400, 400, 40, 40, 0, 255, 255);
     drawStr(parent, str, 10, 200, color);
 
+    drawSquare(parent, 300, 300, 80, 255, 255, 255, 255);
+    drawSquareFill(parent, 340, 340, 10, 100, 200, 200, 255);
+
 
     SUIPost post[3] = { {700, 800}, {800, 900}, {900, 800} };
     SUIPost post2[3] = { {300, 700}, {200, 800}, {100, 900} };
@@ -57,6 +60,7 @@ int main(int argc, char *argv[])
         }
 
     }
+
     image.save("Test.ppm");
     SUISurfaceUtility utility;
     SUISurface mir = utility.mirror(parent);
