@@ -22,9 +22,9 @@ static inline void drawPixel(SUISurface &surface, const pos_t x, const pos_t y,
                              const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
 {
     len_t seek;
-    color24_t tmp = 0;
+    color32_t tmp = 0;
     tmp = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
-    seek = (x + surface.getData().getWidth() * y) * 3;
+    seek = (x + surface.getData().getWidth() * y) * 4;
 
     //边缘检测
     //cout << "Draw postion:" << x << " " << y << endl;
@@ -34,7 +34,7 @@ static inline void drawPixel(SUISurface &surface, const pos_t x, const pos_t y,
 //    }
     if(seek <= surface.getData().bytes()) {
         //*((int32_t*)&(surface.getData().buffer[seek])) = tmp;
-        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 3);
+        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 4);
     }
     else{
 #ifdef SUI_DEBUG
@@ -47,11 +47,11 @@ static inline void drawPixel(SUISurface &surface, const pos_t x, const pos_t y,
 static inline void drawPixel(SUISurface &surface, const SUIPixel pixel)
 {
     len_t seek;
-    seek = (pixel.x + surface.getData().getWidth() * pixel.y) * 3;
-    color24_t tmp = pixel.getColor();
+    seek = (pixel.x + surface.getData().getWidth() * pixel.y) * 4;
+    color32_t tmp = pixel.getColor();
     if(seek <= surface.getData().bytes()) {
         //*((int32_t*)&(surface.getData().buffer[seek])) = pixel.getColor();
-        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 3);
+        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 4);
     }
     else{
 #ifdef SUI_DEBUG
@@ -67,12 +67,12 @@ static inline void plot(SUISurface &surface, const pos_t x, const pos_t y, const
                         const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0)
 {
     len_t seek;
-    color24_t tmp = 0;
+    color32_t tmp = 0;
     tmp = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
     if (reverse)
-        seek = (y + surface.getData().getWidth() * x) * 3;
+        seek = (y + surface.getData().getWidth() * x) * 4;
     else
-        seek = (x + surface.getData().getWidth() * y) * 3;
+        seek = (x + surface.getData().getWidth() * y) * 4;
 
     //边缘检测
     //cout << "Draw postion:" << x << " " << y << endl;
@@ -82,7 +82,7 @@ static inline void plot(SUISurface &surface, const pos_t x, const pos_t y, const
 //    }
     if(seek <= surface.getData().bytes()) {
         //*((int32_t*)&(surface.getData().buffer[seek])) = tmp;
-        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 3);
+        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 4);
     }
     else{
 #ifdef SUI_DEBUG
@@ -501,11 +501,11 @@ static inline void drawStr(SUISurface &surface, const string &str, const SUIPost
 static inline void fillSurface(SUISurface &surface, const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
 {
     SUIColor color(r, g, b, a);
-    color24_t  tmp = color.getColor();
+    color32_t  tmp = color.getColor();
     const pos_t width = surface.getData().getWidth();
     for(int y = 0; y < surface.getData().getHeight(); y++) {
         for(int x = 0; x < surface.getData().getWidth(); x++) {
-            memcpy(surface.getData().buffer + (y * width + x) * 3, &tmp, 3);
+            memcpy(surface.getData().buffer + (y * width + x) * 4, &tmp, 4);
         }
     }
 }

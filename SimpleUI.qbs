@@ -22,6 +22,8 @@ CppApplication {
         "suiimage.h",
         "suiobject.cpp",
         "suiobject.h",
+        "suiscreen.cpp",
+        "suiscreen.h",
         "suisurface.cpp",
         "suisurface.h",
         "suisurfaceutility.cpp",

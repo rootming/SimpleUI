@@ -1,0 +1,40 @@
+#pragma once
+
+#include <vector>
+#pragma once
+
+#include "suitype.h"
+#include "suiobject.h"
+#include "suidebug.h"
+
+namespace sui {
+
+
+class SUIScreen : public SUIObject, SUIData
+{
+public:
+    SUIScreen(std::string dev = "/dev/fb");
+
+
+private:
+    std::string deviceName;
+    SUIData data;
+    int fbdf;           //
+    void *fb_mmap;		//内存地址
+    char *device;		//设备名
+    int8_t redOffset;
+    int8_t greenOffset;
+    int8_t blueOffset;
+    int8_t alphaOffset;
+
+    int init(const char *dev);
+
+    void setScanLineSize()
+    {
+
+    }
+
+};
+
+}
+

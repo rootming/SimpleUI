@@ -11,10 +11,12 @@ using namespace std;
 
 namespace sui {
 
-typedef enum { DEPTH1, DEPTH8, DEPTH16, DEPTH24 } SUIDEPTH;
+typedef enum { DEPTH1, DEPTH8, DEPTH16, DEPTH24, DEPTH32 } SUIDEPTH;
 typedef int64_t pos_t;
-typedef int32_t color24_t;
 typedef uint64_t len_t;
+
+typedef int16_t color16_t;
+typedef int32_t color32_t;
 
 //#define GETMAX(a, b) (a) >= (b) ? (a) : (b)
 //#define GETMIN(a, b) (a) <= (b) ? (a) : (b)
@@ -73,6 +75,7 @@ struct SUIRect
         this->y = y;
         this->w = w;
         this->h = h;
+        setScanLineSize();
     }
 
     SUIRect(SUIPost pos1, SUIPost pos2)
@@ -81,6 +84,7 @@ struct SUIRect
         this->y = getMin(pos1.y, pos2.y);
         this->w = abs(static_cast<long double>(pos1.x - pos2.x));
         this->h = abs(static_cast<long double>(pos1.y - pos2.y));
+        setScanLineSize();
     }
 
     pos_t getX(void) const { return x; }
@@ -89,18 +93,30 @@ struct SUIRect
     pos_t getWidth(void) const { return w; }
     pos_t getHeight(void) const { return h; }
 
-    void setWidth(const pos_t width) { w = width; }
-    void setHeight(const pos_t height) { h = height; }
+    void setWidth(const pos_t width)
+    {
+        w = width;
+        scanLineSize = w * 4;
+    }
+
+    void setHeight(const pos_t height)
+    {
+        h = height;
+    }
 
     void setX(const pos_t post_x) { x = post_x; }
     void setY(const pos_t post_y) { y = post_y; }
 
-    pos_t getScanlineSize(void) const
+    pos_t getScanLineSize(void) const
     {
-        return w * 3;
-
+        return scanLineSize;
     }
 
+    virtual void setScanLineSize()
+    {
+    }
+
+    pos_t scanLineSize;
     pos_t x;
     pos_t y;
     pos_t w;
@@ -122,7 +138,28 @@ struct SUIData: public SUIRect
 
     SUIDEPTH depth;
     uint8_t *buffer;	//缓冲图层指针
-    len_t bytes(void) const { return w * h * sizeof(uint8_t) * 3; }
+    len_t bytes(void) const { return w * h * sizeof(uint8_t) * 4; }
+
+    virtual void setScanLineSize()
+    {
+        switch(depth) {
+        case DEPTH32:
+            scanLineSize = w * 4;
+            break;
+        case DEPTH24:
+            scanLineSize = w * 3;
+            break;
+        case DEPTH16:
+            scanLineSize = w * 2;
+            break;
+        case DEPTH8:
+            scanLineSize = w * 1;
+            break;
+        case DEPTH1:
+            scanLineSize = w * 1;
+            break;
+        }
+    }
 
 };
 
@@ -132,49 +169,43 @@ struct SUIColor
     SUIColor()
     {
         pixel = 0;
-        depth = DEPTH24;
     }
 
     SUIColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0)
     {
         pixel = 0;
-        depth = DEPTH24;
         pixel = r << RED_SEEK | g << GREEN_SEEK | b << BLUE_SEEK | a << ALPHA_SEEK;
     }
 
-    SUIColor(color24_t color)
+    SUIColor(color32_t color)
     {
-        depth = DEPTH24;
         pixel = color;
     }
 
-    SUIColor(uint16_t color)
-    {
-        depth = DEPTH24;
-        pixel = color;
-    }
-
-    SUIColor(uint8_t color)
-    {
-        depth = DEPTH24;
-        pixel = color;      
-    }
-
-    void setColorMode(SUIDEPTH mode) { depth = mode; }
-    void setColor(const color24_t color) { pixel = color; }
+    void setColor(const color32_t color) { pixel = color; }
     void setRed(const uint8_t value) { pixel |= value << RED_SEEK; }
     void setGreen(const uint8_t value) { pixel |= value << GREEN_SEEK; }
     void setBlue(const uint8_t value) { pixel |= value << BLUE_SEEK; }
     void setAlpha(const uint8_t value) { pixel |= value << ALPHA_SEEK; }
 
-    color24_t getColor(void) const { return pixel; }
+    color32_t getColor(void) const { return pixel; }
     uint8_t getRed(void) const { return pixel >> RED_SEEK & 0xFF; }
     uint8_t getGreen(void) const { return pixel >> GREEN_SEEK & 0xFF; }
     uint8_t getBlue(void) const { return pixel >> BLUE_SEEK & 0xFF; }
     uint8_t getAlpha(void) const { return pixel & 0xFF; }
 
-    color24_t pixel;
-    SUIDEPTH depth;
+    color32_t pixel;
+
+    color16_t toRGB565()
+    {
+        return (pixel & 0xf80000) >> 8 | ((pixel & 0xfc00) >> 5) | ((pixel & 0xf8) >> 3);
+    }
+
+
+    static color16_t toRGB565(color32_t color)
+    {
+        return (color & 0xf80000) >> 8 | ((color & 0xfc00) >> 5) | ((color & 0xf8) >> 3);
+    }
 
 
 } ;

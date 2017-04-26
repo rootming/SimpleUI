@@ -16,9 +16,17 @@ SUIImage::SUIImage(SUISurface &surface)
 
 void SUIImage::savePPM(const string &filename) const
 {
+    char *buffer = new char[data.getWidth() * data.getHeight() * 3];
+    char *p = buffer;
     ofstream file(filename.c_str(), ios::binary | ios::trunc | ios::out);
     file << "P6\n" << data.getWidth() << " " << data.getHeight() << "\n255\n";
-    file.write((const char *)data.buffer, data.bytes());
+
+    for(int i = 0; i < data.bytes(); i += 4) {
+        memcpy(p, data.buffer + i, 3);
+        p += 3;
+    }
+
+    file.write((const char *)buffer, data.getWidth() * data.getHeight() * 3);
     file.close();
 }
 
