@@ -9,8 +9,8 @@ namespace sui {
 class SUISurface: public SUIObject
 {
 public:
-    SUISurface(SUISurface *parent = nullptr);
-    SUISurface(const int64_t w, const int64_t h, SUISurface *parent = nullptr);
+    SUISurface(SUIObject *parent = nullptr);
+    SUISurface(const int64_t w, const int64_t h, SUIObject *parent = nullptr);
 
 
     SUISurface(const SUISurface& from): SUIObject(from.getParent())

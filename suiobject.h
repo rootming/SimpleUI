@@ -13,6 +13,7 @@ public:
     void setParent(SUIObject *parent);
     SUIObject *getParent(void) const { return parentObj; }
     static vector<SUIObject *> objNode;
+    void showChild();
 
 private:
     vector<SUIObject *> node;

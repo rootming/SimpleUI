@@ -34,4 +34,14 @@ void SUIObject::addObjNode(void)
     objNode.push_back(this);
 }
 
+void foreachChild()
+{
+
+}
+
+void SUIObject::showChild()
+{
+
+}
+
 }

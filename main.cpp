@@ -7,10 +7,12 @@ using namespace sui;
 int main(int argc, char *argv[])
 {
     SUIMain(argc, argv);
+    SUIScreen screen;
     SUISurface parent(1000, 1000);
     SUIColor color(200, 200, 100);
     SUIColor color2(100, 200, 0);
     string str = "String print test.";
+    screen.addChild(&parent);
 //    for(int i = 0; i < 500; i++) {
 //        for(int j = 0; j < 500; j++) {
 //            drawPixel(parent, SUIPixel(i, j, 255, 255, 0));

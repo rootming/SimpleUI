@@ -14,6 +14,12 @@ class SUIScreen : public SUIObject, SUIData
 {
 public:
     SUIScreen(std::string dev = "/dev/fb");
+    ~SUIScreen();
+
+    void update()
+    {
+        draw(this);
+    }
 
 
 private:
@@ -27,12 +33,9 @@ private:
     int8_t blueOffset;
     int8_t alphaOffset;
 
+    void (*draw)(SUIScreen *screen);
+
     int init(const char *dev);
-
-    void setScanLineSize()
-    {
-
-    }
 
 };
 

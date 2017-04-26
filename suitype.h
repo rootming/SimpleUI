@@ -11,7 +11,7 @@ using namespace std;
 
 namespace sui {
 
-typedef enum { DEPTH1, DEPTH8, DEPTH16, DEPTH24, DEPTH32 } SUIDEPTH;
+typedef enum { DEPTH8 = 1, DEPTH16 = 2, DEPTH24 = 3, DEPTH32  = 4 } SUIDEPTH;
 typedef int64_t pos_t;
 typedef uint64_t len_t;
 
@@ -138,7 +138,12 @@ struct SUIData: public SUIRect
 
     SUIDEPTH depth;
     uint8_t *buffer;	//缓冲图层指针
-    len_t bytes(void) const { return w * h * sizeof(uint8_t) * 4; }
+    len_t bytes(void) const { return h * scanLineSize; }
+
+    void setDepth(SUIDEPTH depth)
+    {
+        this->depth = depth;
+    }
 
     virtual void setScanLineSize()
     {
@@ -155,9 +160,7 @@ struct SUIData: public SUIRect
         case DEPTH8:
             scanLineSize = w * 1;
             break;
-        case DEPTH1:
-            scanLineSize = w * 1;
-            break;
+
         }
     }
 
