@@ -213,9 +213,13 @@ struct SUIColor
         return tmp;
     }
 
-    static color16_t toRGB565(const color32_t color)
+    static color16_t toRGB565(const color32_t color, uint8_t redOffset, uint8_t greenOffset, uint8_t blueOffset)
     {
-        return (color & 0xf80000) >> 8 | ((color & 0xfc00) >> 5) | ((color & 0xf8) >> 3);
+        color32_t tmp = (color >> (RED_SEEK + 3) & 0xFF) << redOffset |
+                        (color >> (GREEN_SEEK + 2) & 0xFF) << greenOffset |
+                        (color >> (BLUE_SEEK + 3) & 0xFF) << blueOffset;
+        //return (color & 0xf80000) >> 8 | ((color & 0xfc00) >> 5) | ((color & 0xf8) >> 3);
+        return tmp;
     }
 
 } ;

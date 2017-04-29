@@ -26,7 +26,7 @@ SUISurface SUISurfaceUtility::mirror(SUISurface &arg)
     uint8_t *dest_buffer = tmp.getData().buffer;
     uint8_t *src_buffer = arg.getData().buffer;
 
-    SUI_DEBUG_INFO("%ld", arg.getData().getScanLineSize());
+    //SUI_DEBUG_INFO("%ld", arg.getData().getScanLineSize());
 
     pos_t p = 0;
     for(pos_t y = 0; y < height; y++){

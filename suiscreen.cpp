@@ -41,11 +41,16 @@ static void drawPixel16(SUIScreen *screen)
     hl = getMin(sh, dh);
     wl = getMin(sw, dw);
 
+    uint8_t rs, gs, bs;
+    rs = screen->getRedOffset();
+    gs = screen->getGreenOffset();
+    bs = screen->getBlueOffset();
+
     //SUI_DEBUG_INFO("Limit: %ld, %ld\n", wl, hl);
 
     for(pos_t y = 0; y < hl; y++) {
         for(pos_t x = 0; x < wl; x++) {
-            pixel = SUIColor::toRGB565(*(int *)(sourceBuffer + (x + y * sw) * 4));
+            pixel = SUIColor::toRGB565(*(int *)(sourceBuffer + (x + y * sw) * 4), rs, gs, bs);
             memcpy(deviceBuffer + ((x + y * dw) * 2), (char *)&pixel, 2);
         }
     }
