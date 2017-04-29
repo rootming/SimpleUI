@@ -41,7 +41,7 @@ static void drawPixel16(SUIScreen *screen)
     hl = getMin(sh, dh);
     wl = getMin(sw, dw);
 
-    SUI_DEBUG_INFO("Limit: %ld, %ld\n", wl, hl);
+    //SUI_DEBUG_INFO("Limit: %ld, %ld\n", wl, hl);
 
     for(pos_t y = 0; y < hl; y++) {
         for(pos_t x = 0; x < wl; x++) {
@@ -56,7 +56,7 @@ static void drawPixel16(SUIScreen *screen)
 
 static void drawPixel24(SUIScreen *screen)
 {
-
+    SUI_DEBUG_INFO("Not implement");
 }
 
 static void drawPixel32(SUIScreen *screen)
@@ -86,8 +86,8 @@ static void drawPixel32(SUIScreen *screen)
     bs = screen->getBlueOffset();
 
 
-    SUI_DEBUG_INFO("Limit: %ld, %ld\n", wl, hl);
-    SUI_DEBUG_INFO("Offset: %d, %d, %d\n", rs, gs, bs);
+    //SUI_DEBUG_INFO("Limit: %ld, %ld\n", wl, hl);
+    //SUI_DEBUG_INFO("Offset: %d, %d, %d\n", rs, gs, bs);
 
 
     for(pos_t y = 0; y < hl; y++) {
@@ -175,7 +175,7 @@ int SUIScreen::init(const char *dev)
     }
 
     SUI_DEBUG_INFO("Memory Mmap successful!\n");
-    SUI_DEBUG_INFO("Fbdev: %ld, %ld\n", data.w, data.h);
+    //SUI_DEBUG_INFO("Fbdev: %ld, %ld\n", data.w, data.h);
 
 
     data.buffer = new uint8_t[data.bytes()];

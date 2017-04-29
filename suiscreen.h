@@ -29,7 +29,7 @@ public:
 
     void update()
     {
-        SUI_DEBUG_WORRY("Surface width: %ld, height: %ld\n", data.getWidth(), data.getHeight());
+        //SUI_DEBUG_WORRY("Surface width: %lld, height: %lld\n", data.getWidth(), data.getHeight());
         memcpy(fb_mmap, data.buffer, data.bytes());
     }
 
