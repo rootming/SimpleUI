@@ -15,8 +15,6 @@ int main(int argc, char *argv[])
 
     string str = "String print test.";
 
-    screen.addChild(&parent);
-
     drawLine(parent, 20, 20, 100, 20, 255, 0, 0);
     drawLine(parent, 20, 20, 20, 100, 0, 255, 0);
     drawLine(parent, 20, 100, 100, 100, 0, 0, 255);
