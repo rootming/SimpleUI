@@ -1,4 +1,6 @@
 #include "suiscreen.h"
+#include "suisurface.h"
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>
@@ -9,6 +11,8 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <linux/fb.h>
+#include "suitype.h"
+
 
 namespace sui {
 
@@ -19,7 +23,34 @@ static void drawPixel8(SUIScreen *screen)
 
 static void drawPixel16(SUIScreen *screen)
 {
-    auto child = screen->node.begin();
+    SUISurface *surface = static_cast<SUISurface *>(screen->getChild(0));
+    SUIScreen *device = static_cast<SUIScreen *>(screen);
+
+    uint8_t *sourceBuffer = surface->getData().buffer;
+    uint8_t *deviceBuffer = device->getData().buffer;
+    uint16_t pixel;
+
+    pos_t sw, sh, dw, dh;
+    sw = surface->getData().getWidth();
+    sh = surface->getData().getHeight();
+
+    dw = device->getData().getWidth();
+    dh = device->getData().getHeight();
+
+    pos_t hl, wl;
+    hl = getMin(sh, dh);
+    wl = getMin(sw, dw);
+
+    SUI_DEBUG_INFO("Limit: %ld, %ld\n", wl, hl);
+
+    for(pos_t y = 0; y < hl; y++) {
+        for(pos_t x = 0; x < wl; x++) {
+            pixel = SUIColor::toRGB565(*(int *)(sourceBuffer + (x + y * sw) * 4));
+            memcpy(deviceBuffer + ((x + y * dw) * 2), (char *)&pixel, 2);
+        }
+    }
+
+    device->update();
 
 }
 
@@ -30,7 +61,43 @@ static void drawPixel24(SUIScreen *screen)
 
 static void drawPixel32(SUIScreen *screen)
 {
+    SUI_DEBUG_INFO("32 bpp Draw\n");
+    SUISurface *surface = static_cast<SUISurface *>(screen->getChild(0));
+    SUIScreen *device = static_cast<SUIScreen *>(screen);
 
+    uint8_t *sourceBuffer = surface->getData().buffer;
+    uint8_t *deviceBuffer = device->getData().buffer;
+    uint32_t pixel;
+
+    pos_t sw, sh, dw, dh;
+    sw = surface->getData().getWidth();
+    sh = surface->getData().getHeight();
+
+    dw = device->getData().getWidth();
+    dh = device->getData().getHeight();
+
+    pos_t hl, wl;
+    hl = getMin(sh, dh);
+    wl = getMin(sw, dw);
+
+    uint8_t rs, gs, bs;
+    rs = screen->getRedOffset();
+    gs = screen->getGreenOffset();
+    bs = screen->getBlueOffset();
+
+
+    SUI_DEBUG_INFO("Limit: %ld, %ld\n", wl, hl);
+    SUI_DEBUG_INFO("Offset: %d, %d, %d\n", rs, gs, bs);
+
+
+    for(pos_t y = 0; y < hl; y++) {
+        for(pos_t x = 0; x < wl; x++) {
+            pixel = SUIColor::toRGB888(*(int *)(&(sourceBuffer[(x + y * sw) * 4])), rs, gs, bs);
+            memcpy(&deviceBuffer[y * device->getData().scanLineSize+ x * 4], &pixel, 4);
+        }
+    }
+
+    device->update();
 }
 
 
@@ -51,7 +118,7 @@ int SUIScreen::init(const char *dev)
         return EXIT_FAILURE;
     }
 
-    SUI_DEBUG_INFO("Open Framebuffer Device:%s successful!\n", device);
+    SUI_DEBUG_INFO("Open Framebuffer Device:%s successful!\n", dev);
     if(ioctl(fbdf, FBIOGET_FSCREENINFO, &fb_fix) == -1){
         SUI_DEBUG_ERROR("Get Fb_fix_info error!\n");
         return EXIT_FAILURE;
@@ -100,7 +167,7 @@ int SUIScreen::init(const char *dev)
     greenOffset = fb_var.green.offset;
     alphaOffset = fb_var.transp.offset;
 
-    fb_mmap = mmap(NULL, fb_var.xres * fb_var.yres * data.depth, PROT_READ | PROT_WRITE,
+    fb_mmap = mmap(NULL, data.bytes(), PROT_READ | PROT_WRITE,
                    MAP_SHARED, fbdf, 0);
     if(fb_mmap == NULL){
         SUI_DEBUG_ERROR("Memory Mmap error!\n");
@@ -108,8 +175,10 @@ int SUIScreen::init(const char *dev)
     }
 
     SUI_DEBUG_INFO("Memory Mmap successful!\n");
+    SUI_DEBUG_INFO("Fbdev: %ld, %ld\n", data.w, data.h);
 
-    data.buffer = static_cast<uint8_t *>(fb_mmap);
+
+    data.buffer = new uint8_t[data.bytes()];
 
     return EXIT_SUCCESS;
 }
@@ -122,6 +191,26 @@ SUIScreen::~SUIScreen()
         munmap(fb_mmap, data.bytes());
         close(fbdf);
     }
+}
+
+uint8_t SUIScreen::getRedOffset() const
+{
+    return redOffset;
+}
+
+uint8_t SUIScreen::getGreenOffset() const
+{
+    return greenOffset;
+}
+
+uint8_t SUIScreen::getBlueOffset() const
+{
+    return blueOffset;
+}
+
+uint8_t SUIScreen::getAlphaOffset() const
+{
+    return alphaOffset;
 }
 
 }

@@ -21,7 +21,7 @@ void SUIImage::savePPM(const string &filename) const
     ofstream file(filename.c_str(), ios::binary | ios::trunc | ios::out);
     file << "P6\n" << data.getWidth() << " " << data.getHeight() << "\n255\n";
 
-    for(int i = 0; i < data.bytes(); i += 4) {
+    for(len_t i = 0; i < data.bytes(); i += 4) {
         memcpy(p, data.buffer + i, 3);
         p += 3;
     }

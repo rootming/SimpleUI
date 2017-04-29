@@ -7,7 +7,7 @@ using namespace sui;
 int main(int argc, char *argv[])
 {
     SUIMain(argc, argv);
-    SUIScreen screen;
+    SUIScreen screen("/dev/fb0");
     SUISurface parent(1000, 1000);
     SUIColor color(200, 200, 100);
     SUIColor color2(100, 200, 0);
@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
 
     }
 
+    screen.refresh();
     image.save("Test.ppm");
     SUISurfaceUtility utility;
     SUISurface mir = utility.mirror(parent);

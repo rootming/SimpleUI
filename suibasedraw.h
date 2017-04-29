@@ -34,7 +34,7 @@ static inline void drawPixel(SUISurface &surface, const pos_t x, const pos_t y,
 //    }
     if(seek <= surface.getData().bytes()) {
         //*((int32_t*)&(surface.getData().buffer[seek])) = tmp;
-        memcpy(&surface.getData().buffer[seek], &tmp, sizeof(uint8_t) * 4);
+        memcpy(&surface.getData().buffer[seek], &tmp, 4);
     }
     else{
 #ifdef SUI_DEBUG

@@ -18,6 +18,7 @@ typedef uint64_t len_t;
 typedef int16_t color16_t;
 typedef int32_t color32_t;
 
+
 //#define GETMAX(a, b) (a) >= (b) ? (a) : (b)
 //#define GETMIN(a, b) (a) <= (b) ? (a) : (b)
 #ifdef SUI_BIG_ENDIAN
@@ -75,7 +76,6 @@ struct SUIRect
         this->y = y;
         this->w = w;
         this->h = h;
-        setScanLineSize();
     }
 
     SUIRect(SUIPost pos1, SUIPost pos2)
@@ -84,7 +84,6 @@ struct SUIRect
         this->y = getMin(pos1.y, pos2.y);
         this->w = abs(static_cast<long double>(pos1.x - pos2.x));
         this->h = abs(static_cast<long double>(pos1.y - pos2.y));
-        setScanLineSize();
     }
 
     pos_t getX(void) const { return x; }
@@ -96,7 +95,6 @@ struct SUIRect
     void setWidth(const pos_t width)
     {
         w = width;
-        scanLineSize = w * 4;
     }
 
     void setHeight(const pos_t height)
@@ -107,16 +105,6 @@ struct SUIRect
     void setX(const pos_t post_x) { x = post_x; }
     void setY(const pos_t post_y) { y = post_y; }
 
-    pos_t getScanLineSize(void) const
-    {
-        return scanLineSize;
-    }
-
-    virtual void setScanLineSize()
-    {
-    }
-
-    pos_t scanLineSize;
     pos_t x;
     pos_t y;
     pos_t w;
@@ -129,21 +117,29 @@ struct SUIData: public SUIRect
     SUIData()
     {
         buffer = nullptr;
+        depth = DEPTH32;
     }
 
     SUIData(const SUIData &orig): SUIRect(orig)
     {
+        depth = orig.depth;
+        buffer = new uint8_t[orig.bytes()];
+        scanLineSize = orig.scanLineSize;
+
         memcpy(buffer, orig.buffer, bytes());
     }
 
     SUIDEPTH depth;
     uint8_t *buffer;	//缓冲图层指针
+    len_t scanLineSize;
     len_t bytes(void) const { return h * scanLineSize; }
 
     void setDepth(SUIDEPTH depth)
     {
         this->depth = depth;
     }
+
+    void setScanLineSize(len_t length) { scanLineSize = length; }
 
     virtual void setScanLineSize()
     {
@@ -164,6 +160,10 @@ struct SUIData: public SUIRect
         }
     }
 
+    len_t getScanLineSize() const
+    {
+        return scanLineSize;
+    }
 };
 
 
@@ -205,11 +205,18 @@ struct SUIColor
     }
 
 
-    static color16_t toRGB565(color32_t color)
+    static color32_t toRGB888(const color32_t color, uint8_t redOffset, uint8_t greenOffset, uint8_t blueOffset)
+    {
+        color32_t tmp = (color >> RED_SEEK & 0xFF) << redOffset |
+                        (color >> GREEN_SEEK & 0xFF) << greenOffset |
+                        (color >> BLUE_SEEK & 0xFF) << blueOffset;
+        return tmp;
+    }
+
+    static color16_t toRGB565(const color32_t color)
     {
         return (color & 0xf80000) >> 8 | ((color & 0xfc00) >> 5) | ((color & 0xf8) >> 3);
     }
-
 
 } ;
 

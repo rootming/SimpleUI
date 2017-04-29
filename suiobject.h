@@ -14,8 +14,12 @@ public:
     SUIObject *getParent(void) const { return parentObj; }
     static vector<SUIObject *> objNode;
     void showChild();
+    SUIObject *getChild(size_t num)
+    {
+        return node.at(num);
+    }
 
-private:
+protected:
     vector<SUIObject *> node;
     SUIObject *parentObj;
     void addObjNode(void);

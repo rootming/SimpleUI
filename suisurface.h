@@ -25,9 +25,10 @@ public:
     {
         data.setWidth(w);
         data.setHeight(h);
+        data.setScanLineSize();
         if(data.buffer != nullptr)
             delete []data.buffer;
-        data.buffer = new uint8_t[data.bytes() / sizeof(uint8_t)];
+        data.buffer = new uint8_t[data.bytes()];
         memset(data.buffer, 0, data.bytes());
     }
 
