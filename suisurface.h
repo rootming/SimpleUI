@@ -21,10 +21,11 @@ public:
         memcpy(this->getData().buffer, from.getData().buffer, from.getData().bytes());
     }
 
-    virtual void resize(const int64_t w, const int64_t h)
+    virtual void resize(const pos_t w, const pos_t h)
     {
         data.setWidth(w);
         data.setHeight(h);
+        data.setDepth(DEPTH32);
         data.setScanLineSize();
         if(data.buffer != nullptr)
             delete []data.buffer;

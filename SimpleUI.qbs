@@ -4,6 +4,7 @@ CppApplication {
     consoleApplication: true
     //cpp.cxxFlags: ["-std=c++11", "-stdlib=libc++", "-Wall"]
     cpp.cxxFlags: ["-std=c++11", "-Wall"]
+    cpp.dynamicLibraries: ["png12"]
     //cpp.runtimeLibrary: "static"
     //cpp.linkerFlags: "-stdlib=libc++"
     files: [

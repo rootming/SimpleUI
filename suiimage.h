@@ -8,14 +8,14 @@ using namespace std;
 
 namespace sui {
 
-class SUIImage
+class SUIImage: public SUISurface
 {
 public:
-    SUIImage(SUISurface &surface);
+    SUIImage(SUISurface *parent = nullptr);
+    int loadImage(const string &filename);
     void save(const string &filename) const;
 
 private:
-    SUIData data;
     void savePPM(const string &filename) const;
 };
 
